@@ -24,6 +24,7 @@ public class BoardDTO {
 	private String status;
 	private String disabled;
 	
+	private String test;
 	
 	
 }
