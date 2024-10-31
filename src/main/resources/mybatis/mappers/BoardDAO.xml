@@ -12,5 +12,8 @@
 		select * from DEALS_BOARD where deal_id=#{dealId}
 	</select>
 
+	<select id="getBoardList">
+		select * from DEALS_BOARD order by insert_datetime DESC
+	</select>
 
 </mapper>

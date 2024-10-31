@@ -2,6 +2,7 @@ package io.booksan.booksan_board.controller;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -72,6 +73,33 @@ public class BoardController {
 		}
 		
 	}
+	
+	//게시판 목록
+	@GetMapping("/list")
+	public ResponseEntity<?> getBoardList(){
+		//게시물 목록 가져와서 boadList에 담기
+		List<BoardDTO> boardList = boardService.getBoardList();
+		
+		
+		//응답데이터 저장할 Map
+		Map<String,Object> response = new HashMap<>();
+		
+		//게시물이 있는 경우
+		if(!boardList.isEmpty()) {
+			response.put("status", "success");
+			response.put("data", boardList);
+			return ResponseEntity.ok(response);
+		} else {
+			//게시물이 없는 경우
+			response.put("status", "fail");
+			response.put("message", "게시물이 없습니다.");
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+		}
+	}
+	
+	
+	
+	
 	
 	
 	
