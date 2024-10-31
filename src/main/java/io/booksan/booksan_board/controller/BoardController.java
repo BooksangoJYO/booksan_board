@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,13 +42,14 @@ public class BoardController {
 		if(result==1) {
 			response.put("status", "success");
 			response.put("message", "게시물 등록 성공");
-			
+			return ResponseEntity.ok(response);
 		}else {
 			response.put("status", "fail");
-			response.put("message", "게시물 등록 실패");			
+			response.put("message", "게시물 등록 실패");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 		}
 		
-		return ResponseEntity.ok(response);
+		
 	}
 	
 	//게시물 단건조회
@@ -95,6 +97,27 @@ public class BoardController {
 			response.put("message", "게시물이 없습니다.");
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
 		}
+	}
+	
+	//게시판 수정
+	@PutMapping("/update")
+	public ResponseEntity<?> updateBoard(@RequestBody BoardDTO boardDTO) {
+		
+		int result = boardService.updateBoard(mapperUtil.map(boardDTO, BoardVO.class));	
+		
+		//응답 데이터를 저장할 response
+		Map<String, Object> response = new HashMap<>();
+		
+		if(result ==1) {
+			response.put("status", "success");
+			response.put("message", "게시물 수정 성공");
+			return ResponseEntity.ok(response);
+		}  else {
+			response.put("status", "fail");
+			response.put("message", "게시물 수정 실패");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
+		
 	}
 	
 	

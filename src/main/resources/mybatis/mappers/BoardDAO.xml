@@ -15,5 +15,16 @@
 	<select id="getBoardList">
 		select * from DEALS_BOARD order by insert_datetime DESC
 	</select>
+	
+	<update id="updateBoard" parameterType="io.booksan.booksan_board.vo.BoardVO">
+		update DEALS_BOARD
+		set title=#{title},
+			content=#{content},
+			books_category_id=#{booksCategoryId},
+			ISBN=#{isbn},
+			price=#{price},		
+			updated_datetime=now()	
+		where deal_id=#{dealId}			
+	</update>
 
 </mapper>

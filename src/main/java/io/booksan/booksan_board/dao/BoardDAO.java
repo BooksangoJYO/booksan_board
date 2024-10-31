@@ -18,6 +18,9 @@ public interface BoardDAO {
 
 	//게시물 목록
 	List<BoardVO> getBoardList();
+
+	//게시물 수정
+	int updateBoard(BoardVO boardVO);
 	
 	
 	

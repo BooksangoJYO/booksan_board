@@ -30,4 +30,9 @@ public class BoardService {
 			return boardDAO.getBoardList().stream().map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
 		}
 
+		public int updateBoard(BoardVO boardVO) {
+			
+			return boardDAO.updateBoard(boardVO);
+		}
+
 }
