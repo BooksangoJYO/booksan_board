@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC  "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.booksan.booksan_board.dao.BoardDAO">
+
+	<insert id="insertBoard">
+		insert into DEALS_BOARD (title, content, books_category_id, ISBN, price,nickname)
+		values (#{title},#{content},#{booksCategoryId},#{isbn},#{price},#{nickname})
+	</insert>
+	
+	<select id="readBoardById">
+		select * from DEALS_BOARD where deal_id=#{dealId} and disabled='N'
+	</select>
+
+	<select id="getBoardList">
+		select * from DEALS_BOARD where disabled='N' order by insert_datetime DESC 
+	</select>
+	
+	<update id="updateBoard" parameterType="io.booksan.booksan_board.vo.BoardVO">
+		update DEALS_BOARD
+		set title=#{title},
+			content=#{content},
+			books_category_id=#{booksCategoryId},
+			ISBN=#{isbn},
+			price=#{price},		
+			updated_datetime=now(),
+			status=#{status}
+		where deal_id=#{dealId}			
+	</update>
+	
+	<update id="deleteBoard">
+		update DEALS_BOARD
+		set disabled="Y"
+		where deal_id=#{dealId}
+	</update>
+
+</mapper>
