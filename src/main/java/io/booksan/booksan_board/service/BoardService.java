@@ -1,5 +1,7 @@
 package io.booksan.booksan_board.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import io.booksan.booksan_board.dao.BoardDAO;
@@ -22,6 +24,10 @@ public class BoardService {
 		public BoardVO readBoardById(int dealId) {
 			
 			return boardDAO.readBoardById(dealId);
+		}
+
+		public List<BoardDTO> getBoardList() {
+			return boardDAO.getBoardList().stream().map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
 		}
 
 }
