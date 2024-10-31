@@ -1,4 +1,4 @@
-package io.booksan.booksan_board.entity;
+package io.booksan.booksan_board.vo;
 
 import java.util.Date;
 
@@ -18,7 +18,7 @@ public class BoardVO {
 	private String isbn;
 	private int price;
 	private Date insertDatetime;
-	private Date updatedDatetime;
+	private Date updatedDatetime;	
 	private int viewCnt;
 	private int favoriteCnt;
 	private String status;

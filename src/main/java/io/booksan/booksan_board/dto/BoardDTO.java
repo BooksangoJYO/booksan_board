@@ -23,5 +23,5 @@ public class BoardDTO {
 	private int favoriteCnt;
 	private String status;
 	private String disabled;
-	
+
 }
