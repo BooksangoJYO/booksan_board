@@ -19,4 +19,9 @@ public class BoardService {
 		
 	}
 
+		public BoardVO readBoardById(int dealId) {
+			
+			return boardDAO.readBoardById(dealId);
+		}
+
 }
