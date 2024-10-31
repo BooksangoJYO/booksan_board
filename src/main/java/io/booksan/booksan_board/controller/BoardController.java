@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -121,7 +123,25 @@ public class BoardController {
 	}
 	
 	
-	
+	//게시물 삭제
+	@DeleteMapping("/delete/{dealId}")
+	public ResponseEntity<?> deleteBoard(@PathVariable("dealId") int dealId){
+		
+		int result = boardService.deleteBoard(dealId);
+		
+		//응답데이터 저장할 response
+		Map<String,Object> response = new HashMap<>();
+		
+		if(result ==1) {
+			response.put("status", "success");
+			response.put("message", "게시물 삭제 성공");
+			return ResponseEntity.ok(response);
+		} else {
+			response.put("status", "fail");
+			response.put("message", "게시물 삭제 실패");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		}
+	}
 	
 	
 	

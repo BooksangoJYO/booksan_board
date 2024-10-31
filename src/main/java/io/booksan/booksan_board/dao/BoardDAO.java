@@ -21,6 +21,9 @@ public interface BoardDAO {
 
 	//게시물 수정
 	int updateBoard(BoardVO boardVO);
+
+	//게시물 삭제
+	int deleteBoard(int dealId);
 	
 	
 	

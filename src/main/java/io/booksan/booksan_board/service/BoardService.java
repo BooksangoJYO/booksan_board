@@ -35,4 +35,9 @@ public class BoardService {
 			return boardDAO.updateBoard(boardVO);
 		}
 
+		public int deleteBoard(int dealId) {
+			
+			return boardDAO.deleteBoard(dealId);
+		}
+
 }
