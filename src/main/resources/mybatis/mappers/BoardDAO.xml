@@ -7,6 +7,10 @@
 		insert into DEALS_BOARD (title, content, books_category_id, ISBN, price,nickname)
 		values (#{title},#{content},#{booksCategoryId},#{isbn},#{price},#{nickname})
 	</insert>
+	
+	<select id="readBoardById">
+		select * from DEALS_BOARD where deal_id=#{dealId}
+	</select>
 
 
 </mapper>

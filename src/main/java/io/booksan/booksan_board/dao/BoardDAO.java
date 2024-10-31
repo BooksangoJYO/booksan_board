@@ -9,6 +9,11 @@ public interface BoardDAO {
 
 	//게시물 등록
 	int insertBoard(BoardVO boardVO);
+
+	//게시물 단건조회
+	BoardVO readBoardById(int dealId);
+	
+	
 	
 	
 

@@ -4,7 +4,10 @@ package io.booksan.booksan_board.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +28,7 @@ public class BoardController {
 	private final MapperUtil mapperUtil;
 	private final BoardService boardService;
 	
-	
+	//게시물 등록
 	@PostMapping("/insert")
 	public ResponseEntity<?> insertBoard(@RequestBody BoardDTO boardDTO) {
 		int result=boardService.insertBoard(mapperUtil.map(boardDTO, BoardVO.class));
@@ -45,5 +48,32 @@ public class BoardController {
 		
 		return ResponseEntity.ok(response);
 	}
+	
+	//게시물 단건조회
+	@GetMapping("/read/{dealId}") 
+	public ResponseEntity<?> readBoard(@PathVariable("dealId") int dealId){
+		
+		
+		//단건조회 결과 boardVO에 담음
+		BoardVO boardVO = boardService.readBoardById(dealId);
+		
+		
+		//응답 데이터 저장할 Map
+		Map<String, Object> response = new HashMap<>();
+		
+		if(boardVO != null) {
+			response.put("status", "success");
+			response.put("data", boardVO);
+			return ResponseEntity.ok(response);
+		} else {
+			response.put("stauts", "fail");
+			response.put("message", "게시물을 찾을 수 없습니다.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		}
+		
+	}
+	
+	
+	
  
 }
