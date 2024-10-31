@@ -9,11 +9,11 @@
 	</insert>
 	
 	<select id="readBoardById">
-		select * from DEALS_BOARD where deal_id=#{dealId}
+		select * from DEALS_BOARD where deal_id=#{dealId} and disabled='N'
 	</select>
 
 	<select id="getBoardList">
-		select * from DEALS_BOARD order by insert_datetime DESC
+		select * from DEALS_BOARD where disabled='N' order by insert_datetime DESC 
 	</select>
 	
 	<update id="updateBoard" parameterType="io.booksan.booksan_board.vo.BoardVO">
@@ -23,8 +23,15 @@
 			books_category_id=#{booksCategoryId},
 			ISBN=#{isbn},
 			price=#{price},		
-			updated_datetime=now()	
+			updated_datetime=now(),
+			status=#{status}
 		where deal_id=#{dealId}			
+	</update>
+	
+	<update id="deleteBoard">
+		update DEALS_BOARD
+		set disabled="Y"
+		where deal_id=#{dealId}
 	</update>
 
 </mapper>
