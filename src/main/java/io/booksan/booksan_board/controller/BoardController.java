@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.booksan.booksan_board.dto.BoardDTO;
+import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.service.BoardService;
 import io.booksan.booksan_board.util.MapperUtil;
 import io.booksan.booksan_board.vo.BoardVO;
@@ -80,7 +81,7 @@ public class BoardController {
 	
 	//게시판 목록
 	@GetMapping("/list")
-	public ResponseEntity<?> getBoardList(){
+	public ResponseEntity<?> getBoardList(@RequestBody PageRequestDTO pageRequestDTO){
 		//게시물 목록 가져와서 boadList에 담기
 		List<BoardDTO> boardList = boardService.getBoardList();
 		
@@ -149,9 +150,4 @@ public class BoardController {
         String bookInfo = boardService.getBookInfoByIsbn(isbn);
         return ResponseEntity.ok(bookInfo);
     }
-	
-	
-	
-	
- 
 }
