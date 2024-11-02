@@ -2,6 +2,21 @@
 <!DOCTYPE mapper PUBLIC  "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="io.booksan.booksan_board.dao.BoardDAO">
+	<sql id="search">
+		<where>
+			<if test="keyword != null and keyword != ''">
+				<choose>
+					<when test="searchType == 'board'">
+						concat_ws(' ', title, content) like concat('%', #{keyword}, '%')
+					</when>
+					<when test="searchType == 'book'">
+						concat_ws(' ' <!--도서 db 컬럼명 입력-->) like concat('%', #{keyword}, '%')
+					</when>
+					<!--통합 검색 쿼리 추가 필요-->
+				</choose>
+			</if>
+		</where>
+	</sql>
 
 	<insert id="insertBoard">
 		insert into DEALS_BOARD (title, content, books_category_id, ISBN, price,nickname)
@@ -13,9 +28,12 @@
 	</select>
 
 	<select id="getBoardList">
-		select * from DEALS_BOARD where disabled='N' order by insert_datetime DESC 
+		select * from DEALS_BOARD 
+		<include refid="search" />
+		order by insert_datetime DESC 
+		limit #{skip}, #{size}
 	</select>
-	
+
 	<update id="updateBoard" parameterType="io.booksan.booksan_board.vo.BoardVO">
 		update DEALS_BOARD
 		set title=#{title},
