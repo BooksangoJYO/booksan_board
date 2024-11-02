@@ -143,6 +143,13 @@ public class BoardController {
 		}
 	}
 	
+	//책정보 얻어오기(네이버 오픈 API 호출)
+	@GetMapping("book/{isbn}")
+    public ResponseEntity<?> searchBookByIsbn(@PathVariable String isbn) {
+        String bookInfo = boardService.getBookInfoByIsbn(isbn);
+        return ResponseEntity.ok(bookInfo);
+    }
+	
 	
 	
 	
