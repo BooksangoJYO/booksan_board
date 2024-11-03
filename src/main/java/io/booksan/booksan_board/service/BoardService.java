@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import io.booksan.booksan_board.dao.BoardDAO;
 import io.booksan.booksan_board.dto.BoardDTO;
+import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.util.MapperUtil;
 import io.booksan.booksan_board.vo.BoardVO;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +37,8 @@ public class BoardService {
 		}
 
 		//게시물 목록
-		public List<BoardDTO> getBoardList() {
-			return boardDAO.getBoardList().stream().map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
+		public List<BoardDTO> getBoardList(PageRequestDTO pageRequestDTO) {
+			return boardDAO.getBoardList(pageRequestDTO).stream().map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
 		}
 
 		//게시물 수정
