@@ -2,6 +2,8 @@ package io.booksan.booksan_board.dao;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+
+import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.vo.BoardVO;
 
 @Mapper
@@ -14,7 +16,7 @@ public interface BoardDAO {
 	BoardVO readBoardById(int dealId);
 
 	//게시물 목록
-	List<BoardVO> getBoardList();
+	List<BoardVO> getBoardList(PageRequestDTO pageRequestDTO);
 
 	//게시물 수정
 	int updateBoard(BoardVO boardVO);

@@ -80,10 +80,13 @@ public class BoardController {
 	}
 	
 	//게시판 목록
-	@GetMapping("/list")
+	@PostMapping("/list")
 	public ResponseEntity<?> getBoardList(@RequestBody PageRequestDTO pageRequestDTO){
+		
+		log.info("pageRequestDTO: {}", pageRequestDTO);
+		
 		//게시물 목록 가져와서 boadList에 담기
-		List<BoardDTO> boardList = boardService.getBoardList();
+		List<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);
 		
 		
 		//응답데이터 저장할 Map

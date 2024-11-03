@@ -25,8 +25,7 @@ public class PageRequestDTO {
     @Positive
     private int size = 10;
 
-    @Builder.Default
-    private String searchType = "board";  // 제목+내용, 도서명, 작가, 출판사
+    private String searchType;  // 제목+내용, 도서명, 작가, 출판사
     private String keyword;
     private String from;
     private String to;
