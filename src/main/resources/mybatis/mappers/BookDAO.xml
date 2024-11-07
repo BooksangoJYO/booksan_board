@@ -3,7 +3,23 @@
 
 
 <mapper namespace="io.booksan.booksan_board.dao.BookDAO">
+	<!-- 카테고리 목록 가져오기(게시물 등록시 카테고리 필요) -->
+	<select id="getCategories">
+		select * from BOOKS_CATEGORIES order by books_category_id
+	</select>
 
-
+	<!-- 책정보 등록(게시물 등록시) -->
+	<insert id="insertBookInfo" parameterType="io.booksan.booksan_board.vo.BookInfoVO">
+		insert into BOOKS_INFO(isbn, book_title, book_writer, book_publisher)
+		values(#{isbn}, #{bookTitle}, #{bookWriter}, #{bookPublisher})
+	</insert>
+	
+	<!-- isbn 존재여부 확인(존재하는 isbn인 경우 책등록 x) -->
+	<select id="isISBNExists">
+		select count(*) from BOOKS_INFO where isbn=#{isbn}
+	</select>
+	
+	
+	
 
 </mapper>
