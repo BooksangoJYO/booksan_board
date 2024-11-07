@@ -18,34 +18,40 @@
 		</where>
 	</sql>
 
+
+	<!-- 게시물 등록 -->
 	<insert id="insertBoard">
-		insert into DEALS_BOARD (title, content, books_category_id, ISBN, price,nickname)
+		insert into DEALS_BOARD (title, content, books_category_id, isbn, price,nickname)
 		values (#{title},#{content},#{booksCategoryId},#{isbn},#{price},#{nickname})
 	</insert>
 	
+	<!-- 게시물 단건조회 -->
 	<select id="readBoardById">
 		select * from DEALS_BOARD where deal_id=#{dealId} and disabled='N'
 	</select>
 
+	<!-- 게시물 목록 -->
 	<select id="getBoardList">
 		select * from DEALS_BOARD 
 		<include refid="search" />
 		order by insert_datetime DESC 
 		limit #{skip}, #{size}
 	</select>
-
+	
+	<!-- 게시물 수정 -->
 	<update id="updateBoard" parameterType="io.booksan.booksan_board.vo.BoardVO">
 		update DEALS_BOARD
 		set title=#{title},
 			content=#{content},
 			books_category_id=#{booksCategoryId},
-			ISBN=#{isbn},
+			isbn=#{isbn},
 			price=#{price},		
 			updated_datetime=now(),
 			status=#{status}
 		where deal_id=#{dealId}			
 	</update>
 	
+	<!-- 게시물 삭제(상태변경) -->
 	<update id="deleteBoard">
 		update DEALS_BOARD
 		set disabled="Y"

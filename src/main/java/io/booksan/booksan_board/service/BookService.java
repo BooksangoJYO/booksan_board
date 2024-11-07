@@ -1,5 +1,7 @@
 package io.booksan.booksan_board.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -9,9 +11,19 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.web.client.RestTemplate;
 
+import io.booksan.booksan_board.dao.BookDAO;
+import io.booksan.booksan_board.dto.BookDTO;
+import io.booksan.booksan_board.util.MapperUtil;
+import io.booksan.booksan_board.vo.BookInfoVO;
+import lombok.RequiredArgsConstructor;
+
 
 @Service
+@RequiredArgsConstructor
 public class BookService {
+	private final BookDAO bookDAO;
+	private final MapperUtil mapperUtil;
+	
 	
 	@Value("${naver.client.id}")
 	private String clientId;
@@ -45,6 +57,21 @@ public class BookService {
 	
 		return restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
 	
+	}
+
+	//카테고리 목록 가져오기
+	public List<BookDTO> getCategories() {		
+		return bookDAO.getCategories().stream().map(category -> mapperUtil.map(category, BookDTO.class)).toList();
+	}
+
+	//게시물 등록시 책정보 등록
+	public int insertBookInfo(BookInfoVO bookInfoVO) {
+		return bookDAO.insertBookInfo(bookInfoVO);
+	}
+	
+	//책정보 등록하기전에 책정보테이블에서 ISBN이 있는지 확인
+	public int isISBNExists(String isbn) {		
+		return bookDAO.isISBNExists(isbn);
 	}
 	
 	
