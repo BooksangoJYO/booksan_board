@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.booksan.booksan_board.dto.BoardDTO;
@@ -58,9 +59,9 @@ public class BoardController {
 		
 		//책 정보 설정
 		BookDTO bookDTO = new BookDTO();
-		bookDTO.setBookTitle(requestDTO.getBookTitle());
-		bookDTO.setBookWriter(requestDTO.getBookWriter());
-		bookDTO.setBookPublisher(requestDTO.getBookPublisher());
+		bookDTO.setTitle(requestDTO.getBookTitle());
+		bookDTO.setAuthor(requestDTO.getBookWriter());
+		bookDTO.setPublisher(requestDTO.getBookPublisher());
 		bookDTO.setIsbn(requestDTO.getIsbn());
 		
 		//ISBN 존재 여부 확인(게시물 등록시 책정보테이블에 없는 ISBN인경우 책등록 요청)

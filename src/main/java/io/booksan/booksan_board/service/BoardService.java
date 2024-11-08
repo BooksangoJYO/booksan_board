@@ -51,30 +51,8 @@ public class BoardService {
 		public int deleteBoard(int dealId) {
 			
 			return boardDAO.deleteBoard(dealId);
-		}
+		}		
 		
-		
-//		//
-//		public String getBookInfoByIsbn(String isbn) {
-//	        // 네이버 책 검색 API URL
-//	        String apiUrl = "https://openapi.naver.com/v1/search/book.json?query=" + isbn;
-//
-//	        // RestTemplate 객체 생성
-//	        RestTemplate restTemplate = new RestTemplate();
-//
-//	        // HTTP 헤더 설정
-//	        HttpHeaders headers = new HttpHeaders();
-//	        headers.set("X-Naver-Client-Id", CLIENT_ID);
-//	        headers.set("X-Naver-Client-Secret", CLIENT_SECRET);
-//
-//	        // 요청 엔티티 생성
-//	        HttpEntity<String> entity = new HttpEntity<>(headers);
-//
-//	        // 네이버 API에 요청 보내기
-//	        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
-//
-//	        // API 응답 반환
-//	        return response.getBody();
-//	    }
+
 
 }

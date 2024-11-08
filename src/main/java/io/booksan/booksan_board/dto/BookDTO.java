@@ -10,10 +10,14 @@ import lombok.NoArgsConstructor;
 public class BookDTO {
 	private int booksCategoryId;
 	private String booksCategoryName;
-	
-	private String isbn;
-	private String bookTitle;
-	private String bookWriter;
-	private String bookPublisher;
+	private String title;
+    private String link;
+    private String image;
+    private String author;
+    private String discount;
+    private String publisher;
+    private String pubdate;
+    private String isbn;
+    private String description;
 
 }
