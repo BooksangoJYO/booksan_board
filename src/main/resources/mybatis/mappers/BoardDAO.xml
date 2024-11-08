@@ -6,13 +6,13 @@
 		<where>
 			<if test="keyword != null and keyword != ''">
 				<choose>
-					<when test="searchType == 'board'">
-						concat_ws(' ', title, content) like concat('%', #{keyword}, '%')
-					</when>
+					<!-- 통합검색 -->
+					<when test="searchType == ''"></when>
+						concat_ws(' ', d.title, d.content, d.nickname, b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
+					<!-- 도서로 검색 -->
 					<when test="searchType == 'book'">
-						concat_ws(' ' <!--도서 db 컬럼명 입력-->) like concat('%', #{keyword}, '%')
+						concat_ws(' ' b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
 					</when>
-					<!--통합 검색 쿼리 추가 필요-->
 				</choose>
 			</if>
 		</where>
@@ -32,7 +32,7 @@
 
 	<!-- 게시물 목록 -->
 	<select id="getBoardList">
-		select * from DEALS_BOARD 
+		select * from DEALS_BOARD d join BOOKS_INFO b on d.ISBN = b.ISBN
 		<include refid="search" />
 		order by insert_datetime DESC 
 		limit #{skip}, #{size}
