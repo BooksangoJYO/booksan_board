@@ -54,8 +54,15 @@
 	<!-- 게시물 삭제(상태변경) -->
 	<update id="deleteBoard">
 		update DEALS_BOARD
-		set disabled="Y"
+		set disabled='Y'
 		where deal_id=#{dealId}
 	</update>
+	
+	<!-- 게시물 목록 개수(페이지네이션) -->
+	<select id="getTotalCount">
+		select count(*) 
+		from DEALS_BOARD 
+		<include refid="search" />
+	</select>
 
 </mapper>

@@ -3,6 +3,7 @@ package io.booksan.booksan_board.dao;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
+
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.vo.BoardVO;
 
@@ -23,6 +24,9 @@ public interface BoardDAO {
 
 	//게시물 삭제
 	int deleteBoard(int dealId);
+	
+	//게시물 개수
+	int getTotalCount(PageRequestDTO pageRequestDTO);
 	
 	
 	

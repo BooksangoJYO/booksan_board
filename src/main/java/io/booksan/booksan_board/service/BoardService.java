@@ -12,12 +12,15 @@ import org.springframework.web.client.RestTemplate;
 import io.booksan.booksan_board.dao.BoardDAO;
 import io.booksan.booksan_board.dto.BoardDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
+import io.booksan.booksan_board.dto.PageResponseDTO;
 import io.booksan.booksan_board.util.MapperUtil;
 import io.booksan.booksan_board.vo.BoardVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BoardService {
 		private final BoardDAO boardDAO;
 		private final MapperUtil mapperUtil;
@@ -30,15 +33,24 @@ public class BoardService {
 		
 		}
 		
-		//게시물 조회
-		public BoardVO readBoardById(int dealId) {
+		//게시물 단건 조회
+		public BoardDTO readBoardById(int dealId) {			
+			BoardVO boardVO = boardDAO.readBoardById(dealId);
 			
-			return boardDAO.readBoardById(dealId);
+			//BoardVO를 BoardDTO로 변환하여 반환
+			return mapperUtil.map(boardVO, BoardDTO.class);
 		}
 
 		//게시물 목록
-		public List<BoardDTO> getBoardList(PageRequestDTO pageRequestDTO) {
-			return boardDAO.getBoardList(pageRequestDTO).stream().map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
+		public PageResponseDTO<BoardDTO> getBoardList(PageRequestDTO pageRequestDTO) {
+			//DAO에서 게시물 목록을 가져오고, BoardVO를 BoardDTO로 변환
+			List<BoardDTO> boardList = boardDAO.getBoardList(pageRequestDTO).stream().map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
+			//PageResponseDTO를 생성하여 반환
+			return PageResponseDTO.<BoardDTO>withAll()
+					.pageRequestDTO(pageRequestDTO)
+					.dtoList(boardList)
+					.total(boardDAO.getTotalCount(pageRequestDTO))
+					.build();
 		}
 
 		//게시물 수정
