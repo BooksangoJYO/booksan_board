@@ -5,15 +5,15 @@
 	<sql id="search">
 		<where>
 			<if test="keyword != null and keyword != ''">
-				<choose>
-					<!-- 통합검색 -->
+<!-- 				<choose>
+					통합검색
 					<when test="searchType == ''"></when>
 						concat_ws(' ', d.title, d.content, d.nickname, b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
-					<!-- 도서로 검색 -->
+					도서로 검색
 					<when test="searchType == 'book'">
 						concat_ws(' ' b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
 					</when>
-				</choose>
+				</choose> -->
 			</if>
 		</where>
 	</sql>
@@ -33,7 +33,7 @@
 	<!-- 게시물 목록 -->
 	<select id="getBoardList">
 		select * from DEALS_BOARD d join BOOKS_INFO b on d.ISBN = b.ISBN
-		<include refid="search" />
+
 		order by insert_datetime DESC 
 		limit #{skip}, #{size}
 	</select>
@@ -54,8 +54,14 @@
 	<!-- 게시물 삭제(상태변경) -->
 	<update id="deleteBoard">
 		update DEALS_BOARD
-		set disabled="Y"
+		set disabled='Y'
 		where deal_id=#{dealId}
 	</update>
+	
+	<!-- 게시물 목록 개수(페이지네이션) -->
+	<select id="getTotalCount">
+		select count(*) 
+		from DEALS_BOARD d join BOOKS_INFO b on d.ISBN = b.ISBN
+	</select>
 
 </mapper>

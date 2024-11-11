@@ -19,6 +19,31 @@
 		select count(*) from BOOKS_INFO where isbn=#{isbn}
 	</select>
 	
+	<!-- 책 평가 댓글 목록 가져오기 -->
+	<select id="getComment">
+		select * from BOOK_COMMENT where isbn=#{isbn} order by insert_datetime		
+	</select>
+	
+	<!-- 책 평가 댓글 등록 -->
+	<insert id="insertComment">
+		insert into BOOK_COMMENT(isbn, uid, content)
+		values(#{isbn}, #{uid}, #{content})
+	</insert>
+	
+	<!-- 책 평가 댓글 수정 -->
+	<update id="updateComment">
+		update BOOK_COMMENT
+		set content=#{content},
+			updated_datetime = now()
+		where comment_id = #{commentId}
+	</update>
+	
+	<!-- 책 평가 댓글 삭제(disabled='Y') -->
+	<update id="deleteComment">
+		update BOOK_COMMENT
+		set disabled = 'Y'
+		where comment_id = #{commentId}
+	</update>
 	
 	
 

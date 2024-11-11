@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.booksan.booksan_board.dto.BoardDTO;
-
+import io.booksan.booksan_board.dto.BookCommentDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
+import io.booksan.booksan_board.dto.PageResponseDTO;
 import io.booksan.booksan_board.dto.BookDTO;
+import io.booksan.booksan_board.dto.BookInfoDTO;
 import io.booksan.booksan_board.dto.RequestDTO;
 
 import io.booksan.booksan_board.service.BoardService;
@@ -58,21 +61,19 @@ public class BoardController {
 		boardDTO.setIsbn(requestDTO.getIsbn());
 		
 		//책 정보 설정
-		BookDTO bookDTO = new BookDTO();
-		bookDTO.setTitle(requestDTO.getBookTitle());
-		bookDTO.setAuthor(requestDTO.getBookWriter());
-		bookDTO.setPublisher(requestDTO.getBookPublisher());
-		bookDTO.setIsbn(requestDTO.getIsbn());
+		BookInfoDTO bookInfoDTO = new BookInfoDTO();
+		bookInfoDTO.setTitle(requestDTO.getBookTitle());
+		bookInfoDTO.setAuthor(requestDTO.getBookWriter());
+		bookInfoDTO.setPublisher(requestDTO.getBookPublisher());
+		bookInfoDTO.setIsbn(requestDTO.getIsbn());
 		
 		//ISBN 존재 여부 확인(게시물 등록시 책정보테이블에 없는 ISBN인경우 책등록 요청)
 		if(bookService.isISBNExists(requestDTO.getIsbn())==0) {
-			int bookResult=bookService.insertBookInfo(mapperUtil.map(bookDTO, BookInfoVO.class));
+			int bookResult=bookService.insertBookInfo(mapperUtil.map(bookInfoDTO, BookInfoVO.class));
 		}
 		
 		//책정보 등록이 먼저 등록이 되어야 게시물 등록할때 책정보테이블의 isbn를 참조할수 있음
-		int boardResult=boardService.insertBoard(mapperUtil.map(boardDTO, BoardVO.class));
-		
-		
+		int boardResult=boardService.insertBoard(mapperUtil.map(boardDTO, BoardVO.class));		
 		
 		//응답 데이터를 저장할 Map 생성
 		Map<String, Object> response = new HashMap<>();
@@ -95,15 +96,19 @@ public class BoardController {
 		
 		
 		//단건조회 결과 boardVO에 담음
-		BoardVO boardVO = boardService.readBoardById(dealId);
+		BoardDTO boardDTO = boardService.readBoardById(dealId);
 		
 		
 		//응답 데이터 저장할 Map
 		Map<String, Object> response = new HashMap<>();
 		
-		if(boardVO != null) {
+		if(boardDTO != null) {
+			//게시글이 존재할 경우 책 평가 댓글 목록 가져오기
+			List<BookCommentDTO> bookCommentList = bookService.getCommentList(boardDTO.getIsbn());
+			
 			response.put("status", "success");
-			response.put("data", boardVO);
+			response.put("data", boardDTO);
+			response.put("bookCommentList", bookCommentList);
 			return ResponseEntity.ok(response);
 		} else {
 			response.put("stauts", "fail");
@@ -114,20 +119,19 @@ public class BoardController {
 	}
 	
 	//게시판 목록
-	@PostMapping("/list")
-	public ResponseEntity<?> getBoardList(@RequestBody PageRequestDTO pageRequestDTO){
-		
-		log.info("pageRequestDTO: {}", pageRequestDTO);
+	@GetMapping("/list")
+	public ResponseEntity<?> getBoardList(@ModelAttribute PageRequestDTO pageRequestDTO){		
+
 		
 		//게시물 목록 가져와서 boadList에 담기
-		List<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);
+		PageResponseDTO<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);
 		
 		
 		//응답데이터 저장할 Map
 		Map<String,Object> response = new HashMap<>();
-		
+		log.info( boardList.toString());
 		//게시물이 있는 경우
-		if(!boardList.isEmpty()) {
+		if(!boardList.getDtoList().isEmpty()) {
 			response.put("status", "success");
 			response.put("data", boardList);
 			return ResponseEntity.ok(response);

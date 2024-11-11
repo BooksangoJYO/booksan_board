@@ -15,10 +15,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.booksan.booksan_board.dao.BookDAO;
+import io.booksan.booksan_board.dto.BookCategoryDTO;
+import io.booksan.booksan_board.dto.BookCommentDTO;
 import io.booksan.booksan_board.dto.BookDTO;
+import io.booksan.booksan_board.dto.BookInfoDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.dto.PageResponseDTO;
 import io.booksan.booksan_board.util.MapperUtil;
+import io.booksan.booksan_board.vo.BookCommentVO;
 import io.booksan.booksan_board.vo.BookInfoVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +48,7 @@ public class BookService {
 	private final ObjectMapper objectMapper = new ObjectMapper(); 
 		
 	//책 정보 검색(네이버 검색 api로 책정보 요청)
-	public ResponseEntity<PageResponseDTO<BookDTO>> searchBooks(PageRequestDTO pageRequestDTO) {
+	public ResponseEntity<PageResponseDTO<BookInfoDTO>> searchBooks(PageRequestDTO pageRequestDTO) {
 		//페이지네이션 파라미터 계산
 		int start = pageRequestDTO.getSkip() +1; //네이버 API에서 시작 위치는 1부터 시작
 		int display = pageRequestDTO.getSize(); //한 페이지에 표시할 결과 개수
@@ -85,13 +89,13 @@ public class BookService {
 		    // ItemNode를 직접 List<BookDTO>로 변환
 		    //ObjectMapper의 convertValue 메서드를 사용하여 JsonNode를 Java 객체 리스트로 변환할수 있습니다.
 		    //constructCollectionType 메서드는 변환할 타입이 List<BookDTO>임을 지정해줍니다.
-		    List<BookDTO> bookList = objectMapper.convertValue(
+		    List<BookInfoDTO> bookList = objectMapper.convertValue(
 		        itemNode, 
-		        objectMapper.getTypeFactory().constructCollectionType(List.class, BookDTO.class)
+		        objectMapper.getTypeFactory().constructCollectionType(List.class, BookInfoDTO.class)
 		    );
 		    
-		    //<BookDTO>는 PageResponseDTO 객체가 BookDTO 타입의 리스트를 포함하도록 타입을 지정하는것
-		    PageResponseDTO<BookDTO> pageResponseDTO = PageResponseDTO.<BookDTO>withAll()
+		    //<BookInfoDTO>는 PageResponseDTO 객체가 BookInfoDTO 타입의 리스트를 포함하도록 타입을 지정하는것
+		    PageResponseDTO<BookInfoDTO> pageResponseDTO = PageResponseDTO.<BookInfoDTO>withAll()
 		        .pageRequestDTO(pageRequestDTO)
 		        .dtoList(bookList)
 		        .total(total)
@@ -103,10 +107,39 @@ public class BookService {
 		}
 	
 	}
+	
+	//게시물 조회시 isbn으로 책정보 검색
+	public ResponseEntity<?> searchBooks(String isbn) {
+		//네이버 API URL 설정
+		String apiUrl = String.format(
+		        "https://openapi.naver.com/v1/search/book.json?query=%s&start=1&display=1",
+		        isbn
+		    );
+				
+		
+		
+		//HttpHeaders 설정
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("X-Naver-Client-Id", clientId);
+		headers.set("X-Naver-Client-Secret", clientSecret);
+		
+		//HttpEntity 객체 생성( 본문은 필요 없으므로 void 사용)
+		HttpEntity<String> entity = new HttpEntity<>(headers);
+		
+		//API 요청 및 응답 받기
+		ResponseEntity<String> response = restTemplate.exchange(
+			apiUrl,
+			HttpMethod.GET,
+			entity,
+			String.class					
+		);
+				
+		return response;
+	}
 
 	//카테고리 목록 가져오기
-	public List<BookDTO> getCategories() {		
-		return bookDAO.getCategories().stream().map(category -> mapperUtil.map(category, BookDTO.class)).toList();
+	public List<BookCategoryDTO> getCategories() {		
+		return bookDAO.getCategories().stream().map(category -> mapperUtil.map(category, BookCategoryDTO.class)).toList();
 	}
 
 	//게시물 등록시 책정보 등록
@@ -118,6 +151,34 @@ public class BookService {
 	public int isISBNExists(String isbn) {		
 		return bookDAO.isISBNExists(isbn);
 	}
+
+	//책 평가 목록 가져오기
+	public List<BookCommentDTO> getCommentList(String isbn) {
+		
+		return bookDAO.getComment(isbn);
+	}
+
+	
+	//책 평가 댓글 등록
+	public int insertBookComment(BookCommentVO bookCommentVO) {
+		
+		return bookDAO.insertComment(bookCommentVO);
+	}
+
+	//책 평가 댓글 수정
+	public int updateBookComment(BookCommentVO bookCommentVO) {		
+		return bookDAO.updateComment(bookCommentVO);
+	}
+
+	//책 평가 댓글 삭제
+	public int deleteComment(int commentId) {		
+		return bookDAO.deleteComment(commentId);
+	}
+
+	
+	
+	
+	
 	
 	
 }
