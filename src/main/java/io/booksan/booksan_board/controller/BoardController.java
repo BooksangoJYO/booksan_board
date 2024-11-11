@@ -120,9 +120,9 @@ public class BoardController {
 	
 	//게시판 목록
 	@GetMapping("/list")
-	public ResponseEntity<?> getBoardList(@ModelAttribute PageRequestDTO pageRequestDTO){		
+	public ResponseEntity<?> getBoardList(PageRequestDTO pageRequestDTO){		
 
-		
+		log.info(pageRequestDTO.toString());
 		//게시물 목록 가져와서 boadList에 담기
 		PageResponseDTO<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);
 		

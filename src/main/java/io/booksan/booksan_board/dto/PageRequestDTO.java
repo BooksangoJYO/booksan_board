@@ -14,6 +14,8 @@ import jakarta.validation.constraints.Positive;
 @AllArgsConstructor
 @Builder
 public class PageRequestDTO {
+
+	 
     @Builder.Default
     @Min(1)
     @Positive

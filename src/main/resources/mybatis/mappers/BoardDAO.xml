@@ -4,15 +4,18 @@
 <mapper namespace="io.booksan.booksan_board.dao.BoardDAO">
 	<sql id="search">
 		<where>
+			<!-- 항상 적용되는 조건(삭제여부='N') -->
+			disabled ='N'			
 			<if test="keyword != null and keyword != ''">
+				AND
  				<choose>
 					<!-- 통합검색 -->
-					<when test="searchType == ''">
+					<when test="searchType == null or searchType == ''">
 						concat_ws(' ', d.title, d.content, d.nickname, b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
 					</when>
 					<!-- 도서로 검색 -->					
 					<when test="searchType == 'book'">
-						concat_ws(' ' b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
+						concat_ws(' ', b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
 					</when>
 				</choose>
 			</if>
