@@ -26,8 +26,8 @@
 	
 	<!-- 책 평가 댓글 등록 -->
 	<insert id="insertComment">
-		insert into BOOK_COMMENT(isbn, uid, content)
-		values(#{isbn}, #{uid}, #{content})
+		insert into BOOK_COMMENT(isbn, email, content)
+		values(#{isbn}, #{email}, #{content})
 	</insert>
 	
 	<!-- 책 평가 댓글 수정 -->
