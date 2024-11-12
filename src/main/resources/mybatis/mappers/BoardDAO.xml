@@ -11,7 +11,7 @@
  				<choose>
 					<!-- 통합검색 -->
 					<when test="searchType == null or searchType == ''">
-						concat_ws(' ', d.title, d.content, d.nickname, b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
+						concat_ws(' ', d.title, d.content, d.email, b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
 					</when>
 					<!-- 도서로 검색 -->					
 					<when test="searchType == 'book'">
@@ -25,8 +25,8 @@
 
 	<!-- 게시물 등록 -->
 	<insert id="insertBoard">
-		insert into DEALS_BOARD (title, content, books_category_id, isbn, price,nickname)
-		values (#{title},#{content},#{booksCategoryId},#{isbn},#{price},#{nickname})
+		insert into DEALS_BOARD (title, content, books_category_id, isbn, price,email)
+		values (#{title},#{content},#{booksCategoryId},#{isbn},#{price},#{email})
 	</insert>
 	
 	<!-- 게시물 단건조회 -->

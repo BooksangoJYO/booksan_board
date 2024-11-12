@@ -34,11 +34,11 @@ public class BookController {
 	private final BookService bookService;	
 	
 	//게시물 등록 페이지에서 키워드로 책정보 검색(네이버 검색 API)
-	@GetMapping("/searchAll/{searchTitle}")
+	@GetMapping("/searchAll/{searchTitle}/{page}/{size}")
 	public ResponseEntity<?> searchBooks(
 			@PathVariable("searchTitle") String searchTitle,
-			@RequestParam(name = "page", defaultValue= "1") int page,
-			@RequestParam(name = "size", defaultValue="10") int size
+			@PathVariable("page") int page,
+			@PathVariable("size") int size
 	) {
 		//PageRequestDTO 객체 생성
 		PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
@@ -74,6 +74,26 @@ public class BookController {
 		
 		
 		return ResponseEntity.ok(response);
+	}
+	
+	//책 평가 댓글 목록 가져오기
+	@GetMapping("/comment/list/{isbn}")
+	public ResponseEntity<?> getCommentList(@PathVariable("isbn") String isbn) {
+		//응답 데이터 저장할 Map
+		Map<String, Object> response = new HashMap<>();
+		
+		if(isbn != null) {
+			//게시글이 존재할 경우 책 평가 댓글 목록 가져오기
+			List<BookCommentDTO> bookCommentList = bookService.getCommentList(isbn);
+			
+			response.put("status", "success");			
+			response.put("bookCommentList", bookCommentList);
+			return ResponseEntity.ok(response);
+		} else {
+			response.put("stauts", "fail");
+			response.put("message", "책 리뷰 목록을 찾을수 없습니다.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		}
 	}
 	
 	//책 평가 댓글 등록

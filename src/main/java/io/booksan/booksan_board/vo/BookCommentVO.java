@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class BookCommentVO {
 	private int commentId;
 	private String isbn;
-	private String uid;
+	private String email;
 	private String content;
 	private Date insertDatetime;
 	private Date updatedDatetime;

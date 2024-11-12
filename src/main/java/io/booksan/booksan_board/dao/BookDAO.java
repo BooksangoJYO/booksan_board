@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import io.booksan.booksan_board.dto.BookCommentDTO;
 import io.booksan.booksan_board.vo.BookCategoryVO;
 import io.booksan.booksan_board.vo.BookCommentVO;
-import io.booksan.booksan_board.vo.BookInfoVO;
+import io.booksan.booksan_board.vo.BookVO;
 
 @Mapper
 public interface BookDAO {
@@ -16,7 +16,7 @@ public interface BookDAO {
 	List<BookCategoryVO> getCategories();
 
 	//게시물 등록시 책정보 등록
-	int insertBookInfo(BookInfoVO bookInfoVO);
+	int insertBookInfo(BookVO bookInfoVO);
 
 	//isbn이 존재하는지 여부(책정보 등록시 존재하면 미등록, 존재하지않으면 등록)
 	int isISBNExists(String isbn);

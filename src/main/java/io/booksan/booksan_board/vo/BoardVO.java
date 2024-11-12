@@ -13,7 +13,7 @@ public class BoardVO {
 	private int dealId;
 	private String title;
 	private String content;
-	private String nickname;
+	private String email;
 	private int booksCategoryId;
 	private String isbn;
 	private int price;

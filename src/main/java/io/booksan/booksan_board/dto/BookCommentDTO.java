@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BookCommentDTO {
 	private int commentId;
-    private String uid;
+    private String email;
     private String content;
     private Date insertDatetime;
     private Date updatedDatetime;

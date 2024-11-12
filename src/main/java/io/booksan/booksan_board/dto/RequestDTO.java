@@ -13,7 +13,7 @@ public class RequestDTO {
 	private String content;
 	private int booksCategoryId;
 	private int price;
-	private String nickname;
+	private String email;
 	
 	//책 정보
 	private String isbn;

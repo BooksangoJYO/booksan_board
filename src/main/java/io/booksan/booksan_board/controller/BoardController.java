@@ -31,7 +31,7 @@ import io.booksan.booksan_board.service.BoardService;
 import io.booksan.booksan_board.service.BookService;
 import io.booksan.booksan_board.util.MapperUtil;
 import io.booksan.booksan_board.vo.BoardVO;
-import io.booksan.booksan_board.vo.BookInfoVO;
+import io.booksan.booksan_board.vo.BookVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -57,19 +57,19 @@ public class BoardController {
 		boardDTO.setContent(requestDTO.getContent());
 		boardDTO.setBooksCategoryId(requestDTO.getBooksCategoryId());
 		boardDTO.setPrice(requestDTO.getPrice());
-		boardDTO.setNickname(requestDTO.getNickname());
+		boardDTO.setEmail(requestDTO.getEmail());
 		boardDTO.setIsbn(requestDTO.getIsbn());
 		
 		//책 정보 설정
-		BookInfoDTO bookInfoDTO = new BookInfoDTO();
-		bookInfoDTO.setTitle(requestDTO.getBookTitle());
-		bookInfoDTO.setAuthor(requestDTO.getBookWriter());
-		bookInfoDTO.setPublisher(requestDTO.getBookPublisher());
-		bookInfoDTO.setIsbn(requestDTO.getIsbn());
+		BookDTO bookDTO = new BookDTO();
+		bookDTO.setBookTitle(requestDTO.getBookTitle());
+		bookDTO.setBookWriter(requestDTO.getBookWriter());
+		bookDTO.setBookPublisher(requestDTO.getBookPublisher());
+		bookDTO.setIsbn(requestDTO.getIsbn());
 		
 		//ISBN 존재 여부 확인(게시물 등록시 책정보테이블에 없는 ISBN인경우 책등록 요청)
 		if(bookService.isISBNExists(requestDTO.getIsbn())==0) {
-			int bookResult=bookService.insertBookInfo(mapperUtil.map(bookInfoDTO, BookInfoVO.class));
+			int bookResult=bookService.insertBookInfo(mapperUtil.map(bookDTO, BookVO.class));
 		}
 		
 		//책정보 등록이 먼저 등록이 되어야 게시물 등록할때 책정보테이블의 isbn를 참조할수 있음
@@ -102,13 +102,9 @@ public class BoardController {
 		//응답 데이터 저장할 Map
 		Map<String, Object> response = new HashMap<>();
 		
-		if(boardDTO != null) {
-			//게시글이 존재할 경우 책 평가 댓글 목록 가져오기
-			List<BookCommentDTO> bookCommentList = bookService.getCommentList(boardDTO.getIsbn());
-			
+		if(boardDTO != null) {			
 			response.put("status", "success");
 			response.put("data", boardDTO);
-			response.put("bookCommentList", bookCommentList);
 			return ResponseEntity.ok(response);
 		} else {
 			response.put("stauts", "fail");
