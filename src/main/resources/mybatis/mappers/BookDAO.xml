@@ -9,7 +9,7 @@
 	</select>
 
 	<!-- 책정보 등록(게시물 등록시) -->
-	<insert id="insertBookInfo" parameterType="io.booksan.booksan_board.vo.BookInfoVO">
+	<insert id="insertBookInfo" parameterType="io.booksan.booksan_board.vo.BookVO">
 		insert into BOOKS_INFO(isbn, book_title, book_writer, book_publisher)
 		values(#{isbn}, #{bookTitle}, #{bookWriter}, #{bookPublisher})
 	</insert>
@@ -21,7 +21,7 @@
 	
 	<!-- 책 평가 댓글 목록 가져오기 -->
 	<select id="getComment">
-		select * from BOOK_COMMENT where isbn=#{isbn} order by insert_datetime		
+		select * from BOOK_COMMENT where isbn=#{isbn} and disabled='N' order by insert_datetime		
 	</select>
 	
 	<!-- 책 평가 댓글 등록 -->

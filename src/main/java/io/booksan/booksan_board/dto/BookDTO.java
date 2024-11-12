@@ -10,25 +10,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookDTO {
-	private int booksCategoryId;
-	private String booksCategoryName;
-	
-	private String title;
+	private String bookTitle;
     private String link;
     private String image;
-    private String author;
+    private String bookWriter;
     private String discount;
-    private String publisher;
+    private String bookPublisher;
     private String pubdate;
     private String isbn;
     private String description;
     
-    private int commentId;
-    private String uid;
-    private String content;
-    private Date insertDatetime;
-    private Date updatedDatetime;
-    private String disabled;
+
     
 
 }

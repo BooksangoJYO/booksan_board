@@ -76,6 +76,26 @@ public class BookController {
 		return ResponseEntity.ok(response);
 	}
 	
+	//책 평가 댓글 목록 가져오기
+	@GetMapping("/comment/list/{isbn}")
+	public ResponseEntity<?> getCommentList(@PathVariable("isbn") String isbn) {
+		//응답 데이터 저장할 Map
+		Map<String, Object> response = new HashMap<>();
+		
+		if(isbn != null) {
+			//게시글이 존재할 경우 책 평가 댓글 목록 가져오기
+			List<BookCommentDTO> bookCommentList = bookService.getCommentList(isbn);
+			
+			response.put("status", "success");			
+			response.put("bookCommentList", bookCommentList);
+			return ResponseEntity.ok(response);
+		} else {
+			response.put("stauts", "fail");
+			response.put("message", "책 리뷰 목록을 찾을수 없습니다.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		}
+	}
+	
 	//책 평가 댓글 등록
 	@PostMapping("/comment/insert")
 	public ResponseEntity<?> insertBookComment(@RequestBody BookCommentDTO bookCommentDTO) {

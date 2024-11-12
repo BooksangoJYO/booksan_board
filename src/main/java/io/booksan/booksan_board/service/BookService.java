@@ -23,7 +23,7 @@ import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.dto.PageResponseDTO;
 import io.booksan.booksan_board.util.MapperUtil;
 import io.booksan.booksan_board.vo.BookCommentVO;
-import io.booksan.booksan_board.vo.BookInfoVO;
+import io.booksan.booksan_board.vo.BookVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -143,7 +143,7 @@ public class BookService {
 	}
 
 	//게시물 등록시 책정보 등록
-	public int insertBookInfo(BookInfoVO bookInfoVO) {
+	public int insertBookInfo(BookVO bookInfoVO) {
 		return bookDAO.insertBookInfo(bookInfoVO);
 	}
 	
