@@ -102,13 +102,9 @@ public class BoardController {
 		//응답 데이터 저장할 Map
 		Map<String, Object> response = new HashMap<>();
 		
-		if(boardDTO != null) {
-			//게시글이 존재할 경우 책 평가 댓글 목록 가져오기
-			List<BookCommentDTO> bookCommentList = bookService.getCommentList(boardDTO.getIsbn());
-			
+		if(boardDTO != null) {			
 			response.put("status", "success");
 			response.put("data", boardDTO);
-			response.put("bookCommentList", bookCommentList);
 			return ResponseEntity.ok(response);
 		} else {
 			response.put("stauts", "fail");

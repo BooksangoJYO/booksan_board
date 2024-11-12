@@ -34,11 +34,11 @@ public class BookController {
 	private final BookService bookService;	
 	
 	//게시물 등록 페이지에서 키워드로 책정보 검색(네이버 검색 API)
-	@GetMapping("/searchAll/{searchTitle}")
+	@GetMapping("/searchAll/{searchTitle}/{page}/{size}")
 	public ResponseEntity<?> searchBooks(
 			@PathVariable("searchTitle") String searchTitle,
-			@RequestParam(name = "page", defaultValue= "1") int page,
-			@RequestParam(name = "size", defaultValue="10") int size
+			@PathVariable("page") int page,
+			@PathVariable("size") int size
 	) {
 		//PageRequestDTO 객체 생성
 		PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
