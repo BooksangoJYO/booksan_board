@@ -42,6 +42,9 @@ public class BookService {
 	@Value("${naver.client.secret}")
 	private String clientSecret;
 	
+	@Value("${naver.api.url}")
+	private String naverApiUrl;
+	
 	//자바 코드에서 HTTP요청을 보내기 위한 Spring Framework의 RestTemplate 객체를 생성하고 초기화 하는 부분
 	private final RestTemplate restTemplate = new RestTemplate();
 	//JSON 파싱용 ObjectMapper 추가
@@ -55,8 +58,8 @@ public class BookService {
 		
 		//네이버 API URL 설정
 		String apiUrl = String.format(
-				"https://openapi.naver.com/v1/search/book.json?query=%s&start=%d&display=%d",
-				pageRequestDTO.getKeyword(), start, display
+				"%s?query=%s&start=%d&display=%d",
+				naverApiUrl,pageRequestDTO.getKeyword(), start, display
 		);
 		
 		//HttpHeaders 설정
