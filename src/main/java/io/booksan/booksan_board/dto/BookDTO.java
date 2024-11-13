@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookDTO {
+	//등록되어있는 책정보를 가져올때 사용하는 DTO
 	private String bookTitle;
     private String link;
     private String image;
