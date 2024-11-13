@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -45,19 +47,22 @@ public class BoardController {
 	private final BookService bookService;
 	
 	
-	//게시물 등록
+	//게시물 등록	
 	@PostMapping("/insert")
-	public ResponseEntity<?> insertBoard(@RequestBody RequestDTO requestDTO) {
+	public ResponseEntity<?> insertBoard(@RequestBody RequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails ) {
 		log.info("Request Data: {}", requestDTO);
 		//게시물 등록 정보
 		BoardDTO boardDTO = new BoardDTO();
+		
+		//email 정보 얻기
+		String email = userDetails.getUsername();
 		
 		//Setter 메서드를 사용하여 필드값 설정(게시물 등록폼에서 얻어온 데이터 세팅)
 		boardDTO.setTitle(requestDTO.getTitle());		
 		boardDTO.setContent(requestDTO.getContent());
 		boardDTO.setBooksCategoryId(requestDTO.getBooksCategoryId());
 		boardDTO.setPrice(requestDTO.getPrice());
-		boardDTO.setEmail(requestDTO.getEmail());
+		boardDTO.setEmail(email);
 		boardDTO.setIsbn(requestDTO.getIsbn());
 		
 		//책 정보 설정

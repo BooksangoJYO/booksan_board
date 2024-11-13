@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookInfoDTO {
+	//책 검색결과 받는용 DTO
 	private String title;
     private String link;
     private String image;
