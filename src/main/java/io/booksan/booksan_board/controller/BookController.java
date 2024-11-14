@@ -109,32 +109,35 @@ public class BookController {
 	//책 평가 댓글 등록
 	@PostMapping("/comment/insert")
 	public ResponseEntity<?> insertBookComment(@RequestBody BookCommentDTO bookCommentDTO, @AuthenticationPrincipal UserDetails userDetails) {
-		String email = userDetails.getUsername();
+		String email = userDetails.getUsername();		
 		
+		//응답 데이터 생성
+		Map<String, Object> response = new HashMap<>();
+				
 		//로그인한 유저의 email 세팅해주기
 		bookCommentDTO.setEmail(email);
 		
-		//댓글 등록
-		int result = bookService.insertBookComment(mapperUtil.map(bookCommentDTO, BookCommentVO.class));
-	
-		//응답 데이터 생성
-		Map<String, Object> response = new HashMap<>();
-		if (result==1) {
-			response.put("status", "success");
-			response.put("message", "댓글 등록 성공");
-			return ResponseEntity.ok(response);
-		} else {
+		if(bookCommentDTO.getEmail().equals(email)) {
+			//댓글 등록
+			int result = bookService.insertBookComment(mapperUtil.map(bookCommentDTO, BookCommentVO.class));
+			
+			if (result==1) {
+				response.put("status", "success");
+				response.put("message", "댓글 등록 성공");
+				return ResponseEntity.ok(response);
+			}
+		}		 
 			response.put("status", "fail");
 			response.put("message", "댓글 등록 실패");
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-		}	
+			
 	}
 	
 	//책 평가 댓글 수정
 	@PutMapping("/comment/update")
 	public ResponseEntity<?> updateBookComment(@RequestBody BookCommentDTO bookCommentDTO, @AuthenticationPrincipal UserDetails userDetails) {
 		String email = userDetails.getUsername();
-		
+		bookCommentDTO.setEmail(email);
 		//응답 데이터 생성
 		Map<String, Object> response = new HashMap<>();
 		
@@ -164,7 +167,7 @@ public class BookController {
 		String email = userDetails.getUsername();
 		
 		//응답 데이터
-				Map<String, Object> response = new HashMap<>();
+		Map<String, Object> response = new HashMap<>();
 		
 		if( bookCommentDTO.getEmail().equals(email)) {
 			int result = bookService.deleteComment(commentId);
