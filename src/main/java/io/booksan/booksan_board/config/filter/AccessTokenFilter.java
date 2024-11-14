@@ -35,7 +35,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
         final String path = request.getRequestURI();
         if (!path.startsWith("/api/")
-        		|| !path.equals("/api/board/insert") || !path.equals("/api/board/update") || !path.equals("/api/board/delete") || !path.equals("/api/books/comment/insert") || path.equals("/api/books/comment/update") || path.equals("/api/books/comment/delete")) {
+                || !path.equals("/api/board/insert") || !path.equals("/api/board/update") || !path.equals("/api/board/delete") || !path.equals("/api/books/comment/insert") || path.equals("/api/books/comment/update") || path.equals("/api/books/comment/delete")) {
             filterChain.doFilter(request, response);
             return;
         }

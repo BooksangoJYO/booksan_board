@@ -1,13 +1,15 @@
 package io.booksan.booksan_board.dto;
 
-import lombok.*;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -15,7 +17,6 @@ import jakarta.validation.constraints.Positive;
 @Builder
 public class PageRequestDTO {
 
-	 
     @Builder.Default
     @Min(1)
     @Positive
@@ -31,6 +32,8 @@ public class PageRequestDTO {
     private String keyword;
     private String from;
     private String to;
+    private String email;
+    private String dealId;
 
     public int getSkip() {
         return (page - 1) * size;
@@ -44,11 +47,11 @@ public class PageRequestDTO {
         StringBuilder builder = new StringBuilder();
         builder.append("page=" + page);
         builder.append("&size=" + size);
-        
+
         if (searchType != null && !searchType.isEmpty()) {
             builder.append("&searchType=" + searchType);
         }
-        
+
         if (keyword != null && !keyword.isEmpty()) {
             try {
                 builder.append("&keyword=" + URLEncoder.encode(keyword, "UTF-8"));
@@ -57,7 +60,7 @@ public class PageRequestDTO {
                 e.printStackTrace();
             }
         }
-        
+
         if (from != null && !from.isEmpty()) {
             builder.append("&from=" + from);
         }
