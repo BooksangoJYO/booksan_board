@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.booksan.booksan_board.dto.BookCategoryDTO;
 import io.booksan.booksan_board.dto.BookCommentDTO;
 import io.booksan.booksan_board.dto.BookDTO;
+import io.booksan.booksan_board.dto.BookInfoDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.service.BookService;
 import io.booksan.booksan_board.util.MapperUtil;
@@ -55,7 +56,14 @@ public class BookController {
 	//게시물 조회페이지에서 isbn으로 책정보 단건조회(네이버 검색 api)
 	@GetMapping("/search/{isbn}")
 		public ResponseEntity<?> searchBook(@PathVariable("isbn") String isbn) {
-			return bookService.searchBooks(isbn);
+			BookInfoDTO bookInfo = bookService.searchBook(isbn);
+			Map<String, Object> response = new HashMap<>();		
+			response.put("status", "success");
+			response.put("bookInfo", bookInfo);
+			
+			
+			return ResponseEntity.ok(response);
+			
 	}
 	
 

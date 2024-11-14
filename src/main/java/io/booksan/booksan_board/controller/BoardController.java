@@ -107,9 +107,11 @@ public class BoardController {
 		//응답 데이터 저장할 Map
 		Map<String, Object> response = new HashMap<>();
 		
-		if(boardDTO != null) {			
+		if(boardDTO != null) {
+			BookInfoDTO bookInfo = bookService.searchBook(boardDTO.getIsbn());
 			response.put("status", "success");
 			response.put("data", boardDTO);
+			response.put("bookData", bookInfo);
 			return ResponseEntity.ok(response);
 		} else {
 			response.put("stauts", "fail");
@@ -146,44 +148,55 @@ public class BoardController {
 	
 	//게시판 수정
 	@PutMapping("/update")
-	public ResponseEntity<?> updateBoard(@RequestBody BoardDTO boardDTO) {
-		
-		int result = boardService.updateBoard(mapperUtil.map(boardDTO, BoardVO.class));	
-		
+	public ResponseEntity<?> updateBoard(@RequestBody BoardDTO boardDTO, @AuthenticationPrincipal UserDetails userDetails) {
+		String email = userDetails.getUsername();
 		//응답 데이터를 저장할 response
 		Map<String, Object> response = new HashMap<>();
 		
-		if(result ==1) {
-			response.put("status", "success");
-			response.put("message", "게시물 수정 성공");
-			return ResponseEntity.ok(response);
-		}  else {
-			response.put("status", "fail");
-			response.put("message", "게시물 수정 실패");
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		log.info(boardDTO.getEmail().toString());
+		
+		//로그인한 유저가 글작성자인지 확인하고 맞으면 수정 요청
+		if ( boardDTO.getEmail().equals(email)) {
+			
+			int result = boardService.updateBoard(mapperUtil.map(boardDTO, BoardVO.class));	
+			
+			if(result ==1) {
+				response.put("status", "success");
+				response.put("message", "게시물 수정 성공");
+				return ResponseEntity.ok(response);
+			}  
 		}
+		
+		response.put("status", "fail");
+		response.put("message", "게시물 수정 실패");
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		
 		
 	}
 	
 	
 	//게시물 삭제
 	@DeleteMapping("/delete/{dealId}")
-	public ResponseEntity<?> deleteBoard(@PathVariable("dealId") int dealId){
-		
-		int result = boardService.deleteBoard(dealId);
+	public ResponseEntity<?> deleteBoard(@PathVariable("dealId") int dealId, @RequestBody BoardDTO boardDTO , @AuthenticationPrincipal UserDetails userDetails){
+		String email = userDetails.getUsername();
 		
 		//응답데이터 저장할 response
 		Map<String,Object> response = new HashMap<>();
 		
-		if(result ==1) {
-			response.put("status", "success");
-			response.put("message", "게시물 삭제 성공");
-			return ResponseEntity.ok(response);
-		} else {
-			response.put("status", "fail");
-			response.put("message", "게시물 삭제 실패");
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-		}
+		//로그인한 유저가 글작성자인지 확인하고 맞으면 삭제 요청
+		if(boardDTO.getEmail().equals(email)) {
+			int result = boardService.deleteBoard(dealId);
+			if(result ==1) {
+				response.put("status", "success");
+				response.put("message", "게시물 삭제 성공");
+				return ResponseEntity.ok(response);
+			} 
+		}	
+		
+		response.put("status", "fail");
+		response.put("message", "게시물 삭제 실패");
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		
 	} 
 
 }

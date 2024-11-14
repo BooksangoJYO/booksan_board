@@ -82,6 +82,7 @@ public class BookService {
 		try {			
 			//response.getBody()에서 JSON형식의 응답 본문을 가져와, ObjectMapper의 readTree 메서드를 사용해 JsonNode 형태로 변환
 			//JsonNode는 JSON 데이터를 트리 구조로 다룰 수 있게 해주는 Jackson 라이브러리의 클래스입니다.
+			log.info(response.getBody());
 		    JsonNode root = objectMapper.readTree(response.getBody());
 		    //JSON 응답에서 items라는 이름의 노드를 추출
 		    //items는 네이버 API의 책 검색 결과에서 개별 책 정보가 담긴 배열
@@ -96,7 +97,7 @@ public class BookService {
 		        itemNode, 
 		        objectMapper.getTypeFactory().constructCollectionType(List.class, BookInfoDTO.class)
 		    );
-		    
+		    log.info(bookList.get(0).toString());
 		    //<BookInfoDTO>는 PageResponseDTO 객체가 BookInfoDTO 타입의 리스트를 포함하도록 타입을 지정하는것
 		    PageResponseDTO<BookInfoDTO> pageResponseDTO = PageResponseDTO.<BookInfoDTO>withAll()
 		        .pageRequestDTO(pageRequestDTO)
@@ -112,32 +113,40 @@ public class BookService {
 	}
 	
 	//게시물 조회시 isbn으로 책정보 검색
-	public ResponseEntity<?> searchBooks(String isbn) {
+	public BookInfoDTO searchBook(String isbn) {
 		//네이버 API URL 설정
-		String apiUrl = String.format(
-		        "https://openapi.naver.com/v1/search/book.json?query=%s&start=1&display=1",
-		        isbn
-		    );
-				
-		
-		
-		//HttpHeaders 설정
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("X-Naver-Client-Id", clientId);
-		headers.set("X-Naver-Client-Secret", clientSecret);
-		
-		//HttpEntity 객체 생성( 본문은 필요 없으므로 void 사용)
-		HttpEntity<String> entity = new HttpEntity<>(headers);
-		
-		//API 요청 및 응답 받기
-		ResponseEntity<String> response = restTemplate.exchange(
-			apiUrl,
-			HttpMethod.GET,
-			entity,
-			String.class					
-		);
-				
-		return response;
+		try {
+			String apiUrl = String.format(
+			        "https://openapi.naver.com/v1/search/book.json?query=%s&start=1&display=1",
+			        isbn
+			    );		
+			
+			//HttpHeaders 설정
+			HttpHeaders headers = new HttpHeaders();
+			headers.set("X-Naver-Client-Id", clientId);
+			headers.set("X-Naver-Client-Secret", clientSecret);
+			
+			//HttpEntity 객체 생성( 본문은 필요 없으므로 void 사용)
+			HttpEntity<String> entity = new HttpEntity<>(headers);
+			
+			//API 요청 및 응답 받기
+			ResponseEntity<String> response = restTemplate.exchange(
+				apiUrl,
+				HttpMethod.GET,
+				entity,
+				String.class					
+			);
+			JsonNode root = objectMapper.readTree(response.getBody());
+			JsonNode itemNode = root.path("items");
+			List<BookInfoDTO> bookList = objectMapper.convertValue(
+			        itemNode, 
+			        objectMapper.getTypeFactory().constructCollectionType(List.class, BookInfoDTO.class)
+			    );
+			
+			return bookList.get(0);
+		}catch(Exception e) {
+			throw new RuntimeException("네이버 API로부터 파싱 실패", e);
+		}
 	}
 
 	//카테고리 목록 가져오기
