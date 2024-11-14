@@ -69,4 +69,32 @@
 		<include refid="search" />
 	</select>
 
+	<insert id="insertFavorite">
+		INSERT INTO FAVORITES_DEALS 
+			(email, deal_id, disabled)
+		VALUES 
+			(#{email}, #{dealId}, 'N')
+		ON DUPLICATE KEY UPDATE
+			disabled = IF(disabled = 'N', 'Y', 'N'),
+			favorite_datetime = NOW()
+	</insert>
+
+	<select id="getFavoriteList">
+		SELECT  DEAL.*
+		FROM DEALS_BOARD d
+		JOIN FAVORITES_DEALS fd  ON d.deal_id = fd.deal_id
+		WHERE fd.email = #{email}
+		AND fd.disabled = 'N'
+		ORDER BY fd.favorite_datetime DESC
+		limit #{skip}, #{size}
+	</select>
+
+	<select id="getFavoriteCount">
+		select count(*)
+		FROM DEALS_BOARD d
+		JOIN FAVORITES_DEALS fd  ON d.deal_id = fd.deal_id
+		WHERE fd.email = #{email}
+		AND fd.disabled = 'N'
+	</select>
+
 </mapper>

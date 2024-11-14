@@ -1,10 +1,7 @@
 package io.booksan.booksan_board.controller;
 
-
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,23 +9,19 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.booksan.booksan_board.dto.BoardDTO;
-import io.booksan.booksan_board.dto.BookCommentDTO;
-import io.booksan.booksan_board.dto.PageRequestDTO;
-import io.booksan.booksan_board.dto.PageResponseDTO;
 import io.booksan.booksan_board.dto.BookDTO;
 import io.booksan.booksan_board.dto.BookInfoDTO;
+import io.booksan.booksan_board.dto.PageRequestDTO;
+import io.booksan.booksan_board.dto.PageResponseDTO;
 import io.booksan.booksan_board.dto.RequestDTO;
-
 import io.booksan.booksan_board.service.BoardService;
 import io.booksan.booksan_board.service.BookService;
 import io.booksan.booksan_board.util.MapperUtil;
@@ -124,7 +117,6 @@ public class BoardController {
 	//게시판 목록
 	@GetMapping("/list")
 	public ResponseEntity<?> getBoardList(PageRequestDTO pageRequestDTO){		
-
 		log.info(pageRequestDTO.toString());
 		//게시물 목록 가져와서 boadList에 담기
 		PageResponseDTO<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);
@@ -199,4 +191,43 @@ public class BoardController {
 		
 	} 
 
+
+    
+    @GetMapping("favorite/list")
+    public ResponseEntity<?> getFavoriteList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+        pageRequestDTO.setEmail(userDetails.getUsername());
+        //게시물 목록 가져와서 boadList에 담기
+        PageResponseDTO<BoardDTO> boardList = boardService.getFavoriteList(pageRequestDTO);
+
+        //응답데이터 저장할 Map
+        Map<String, Object> response = new HashMap<>();
+        log.info(boardList.toString());
+        //게시물이 있는 경우
+        if (!boardList.getDtoList().isEmpty()) {
+            response.put("status", "success");
+            response.put("data", boardList);
+            return ResponseEntity.ok(response);
+        } else {
+            //북마크 내역이 없을경우
+            response.put("status", "fail");
+            response.put("message", "북마크 내역이 없습니다.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        }
+    }
+
+    @PostMapping("favorite/insert/{dealId}")
+    public ResponseEntity<?> insertFavoriteList(@PathVariable("dealId") int dealId, @AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        int result = boardService.insertFavorite(dealId, email);
+        Map<String, Object> response = new HashMap<>();
+        if (result == 1) {
+            response.put("status", "success");
+            return ResponseEntity.ok(response);
+        } else {
+            //실패시
+            response.put("status", "fail");
+            response.put("message", "서버오류입니다");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 }
