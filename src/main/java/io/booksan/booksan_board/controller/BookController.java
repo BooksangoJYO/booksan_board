@@ -7,6 +7,8 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.booksan.booksan_board.dto.BookCategoryDTO;
 import io.booksan.booksan_board.dto.BookCommentDTO;
 import io.booksan.booksan_board.dto.BookDTO;
+import io.booksan.booksan_board.dto.BookInfoDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.service.BookService;
 import io.booksan.booksan_board.util.MapperUtil;
@@ -55,7 +58,14 @@ public class BookController {
 	//게시물 조회페이지에서 isbn으로 책정보 단건조회(네이버 검색 api)
 	@GetMapping("/search/{isbn}")
 		public ResponseEntity<?> searchBook(@PathVariable("isbn") String isbn) {
-			return bookService.searchBooks(isbn);
+			BookInfoDTO bookInfo = bookService.searchBook(isbn);
+			Map<String, Object> response = new HashMap<>();		
+			response.put("status", "success");
+			response.put("bookInfo", bookInfo);
+			
+			
+			return ResponseEntity.ok(response);
+			
 	}
 	
 
@@ -98,7 +108,12 @@ public class BookController {
 	
 	//책 평가 댓글 등록
 	@PostMapping("/comment/insert")
-	public ResponseEntity<?> insertBookComment(@RequestBody BookCommentDTO bookCommentDTO) {
+	public ResponseEntity<?> insertBookComment(@RequestBody BookCommentDTO bookCommentDTO, @AuthenticationPrincipal UserDetails userDetails) {
+		String email = userDetails.getUsername();
+		
+		//로그인한 유저의 email 세팅해주기
+		bookCommentDTO.setEmail(email);
+		
 		//댓글 등록
 		int result = bookService.insertBookComment(mapperUtil.map(bookCommentDTO, BookCommentVO.class));
 	
@@ -117,39 +132,53 @@ public class BookController {
 	
 	//책 평가 댓글 수정
 	@PutMapping("/comment/update")
-	public ResponseEntity<?> updateBookComment(@RequestBody BookCommentDTO bookCommentDTO) {
-		//댓글 수정
-		int result = bookService.updateBookComment(mapperUtil.map(bookCommentDTO, BookCommentVO.class));
+	public ResponseEntity<?> updateBookComment(@RequestBody BookCommentDTO bookCommentDTO, @AuthenticationPrincipal UserDetails userDetails) {
+		String email = userDetails.getUsername();
 		
 		//응답 데이터 생성
 		Map<String, Object> response = new HashMap<>();
-		if(result==1) {
-			response.put("status", "success");
-			response.put("message", "책 평가 댓글 수정 성공");
-			return ResponseEntity.ok(response);
-		} else {
-			response.put("status", "fail");
-			response.put("message", "책 평가 댓글 수정 실패");
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		
+		if(bookCommentDTO.getEmail().equals(email)) {
+			//댓글 수정
+			int result = bookService.updateBookComment(mapperUtil.map(bookCommentDTO, BookCommentVO.class));
+			
+			
+			if(result==1) {
+				response.put("status", "success");
+				response.put("message", "책 평가 댓글 수정 성공");
+				return ResponseEntity.ok(response);
+			} 			
 		}
+		
+		response.put("status", "fail");
+		response.put("message", "책 평가 댓글 수정 실패");
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		
 	}
 	
 	//책 평가 댓글 삭제
 	@DeleteMapping("/comment/delete/{commentId}")
-	public ResponseEntity<?> deleteBookComment(@PathVariable("commentId") int commentId) {
-		int result = bookService.deleteComment(commentId);
+	public ResponseEntity<?> deleteBookComment(@PathVariable("commentId") int commentId, @RequestBody BookCommentDTO bookCommentDTO,  @AuthenticationPrincipal UserDetails userDetails) {
+		
+		
+		String email = userDetails.getUsername();
 		
 		//응답 데이터
-		Map<String, Object> response = new HashMap<>();
+				Map<String, Object> response = new HashMap<>();
 		
-		if(result ==1) {
-			response.put("status", "success");
-			response.put("message", "댓글 삭제 성공");
-			return ResponseEntity.ok(response);
-		} else {
-			response.put("status", "fail");
-			response.put("message", "댓글 삭제 실패");
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-		}
+		if( bookCommentDTO.getEmail().equals(email)) {
+			int result = bookService.deleteComment(commentId);
+			
+			if(result ==1) {
+				response.put("status", "success");
+				response.put("message", "댓글 삭제 성공");
+				return ResponseEntity.ok(response);
+			}
+		}		
+		 
+		response.put("status", "fail");
+		response.put("message", "댓글 삭제 실패");
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		
 	}
 }
