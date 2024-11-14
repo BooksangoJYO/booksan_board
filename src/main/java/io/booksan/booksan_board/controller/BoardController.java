@@ -141,9 +141,12 @@ public class BoardController {
 	//게시판 수정
 	@PutMapping("/update")
 	public ResponseEntity<?> updateBoard(@RequestBody BoardDTO boardDTO, @AuthenticationPrincipal UserDetails userDetails) {
+		log.info(userDetails.getUsername());
 		String email = userDetails.getUsername();
 		//응답 데이터를 저장할 response
 		Map<String, Object> response = new HashMap<>();
+		
+		boardDTO.setEmail(email);
 		
 		log.info(boardDTO.getEmail().toString());
 		
@@ -171,7 +174,7 @@ public class BoardController {
 	@DeleteMapping("/delete/{dealId}")
 	public ResponseEntity<?> deleteBoard(@PathVariable("dealId") int dealId, @RequestBody BoardDTO boardDTO , @AuthenticationPrincipal UserDetails userDetails){
 		String email = userDetails.getUsername();
-		
+		boardDTO.setEmail(email);
 		//응답데이터 저장할 response
 		Map<String,Object> response = new HashMap<>();
 		
