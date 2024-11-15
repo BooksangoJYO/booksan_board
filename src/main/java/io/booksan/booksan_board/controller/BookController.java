@@ -136,8 +136,8 @@ public class BookController {
 	//책 평가 댓글 수정
 	@PutMapping("/comment/update")
 	public ResponseEntity<?> updateBookComment(@RequestBody BookCommentDTO bookCommentDTO, @AuthenticationPrincipal UserDetails userDetails) {
-		String email = userDetails.getUsername();
-		bookCommentDTO.setEmail(email);
+		String email = userDetails.getUsername();		
+		
 		//응답 데이터 생성
 		Map<String, Object> response = new HashMap<>();
 		
@@ -162,8 +162,7 @@ public class BookController {
 	//책 평가 댓글 삭제
 	@DeleteMapping("/comment/delete/{commentId}")
 	public ResponseEntity<?> deleteBookComment(@PathVariable("commentId") int commentId, @RequestBody BookCommentDTO bookCommentDTO,  @AuthenticationPrincipal UserDetails userDetails) {
-		
-		
+				
 		String email = userDetails.getUsername();
 		
 		//응답 데이터
