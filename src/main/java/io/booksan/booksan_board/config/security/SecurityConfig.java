@@ -14,38 +14,47 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
-	
-	@Value("${booksan.front}")
-	private String booksanFront;
+    
+    @Value("${booksan.front}")
+    private String booksanFront;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .csrf(csrf -> csrf
-                .disable()
+                        .disable()
                 )
                 .cors(cors -> cors
-                .configurationSource(corsConfigurationSource())
+                        .configurationSource(corsConfigurationSource())
                 )
                 .authorizeHttpRequests(matchers -> matchers
-                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                .requestMatchers(
-                        "/",
-                        "/api/**",
-                        "/js/**",
-                        "/css/**",
-                        "/images/**"                   
-                ).permitAll()
-                .anyRequest().authenticated()
+                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/api/**",
+                                "/js/**",
+                                "/css/**",
+                                "/images/**",
+                                "/error"  // 에러 페이지 허용
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                // 예외 처리 추가
+                .exceptionHandling(handling -> handling
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("Unauthorized: " + authException.getMessage());
+                        })
                 );
 
         return http.build();
@@ -54,10 +63,20 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173")); // 실제 운영환경에서는 구체적인 도메인 지정 필요
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS","PUT","DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173")); 
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE"));
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Origin",
+                "Accept",
+                "X-Requested-With",
+                "Content-Type",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers",
+                "Authorization"
+        ));
+        configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // 1시간 동안 preflight 요청 캐시
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

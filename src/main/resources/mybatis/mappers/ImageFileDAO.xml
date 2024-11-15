@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC  "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.booksan.booksan_board.dao.ImageFileDAO">
+
+	<insert id="insertImageFile">
+		insert into DEALS_IMAGES (
+			 deal_id
+			,img_uuid
+			,img_name
+			,img_size
+			,img_type
+		) values (
+			 #{dealId}
+			,#{imgUuid}
+			,#{imgName}
+			,#{imgSize}
+			,#{imgType}
+		)
+	</insert>
+
+	<select id="getImageFileList" resultType="io.booksan.booksan_board.vo.ImageFileVO">
+		select * from DEALS_IMAGES where deal_id = #{deal_id}
+	</select>
+	
+	<select id="readImageFile" resultType="io.booksan.booksan_board.vo.ImageFileVO">
+		SELECT * FROM DEALS_IMAGES where img_id = #{img_id}
+	</select>	
+
+</mapper>	

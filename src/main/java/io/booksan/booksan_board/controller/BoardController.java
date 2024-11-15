@@ -1,5 +1,9 @@
 package io.booksan.booksan_board.controller;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,17 +25,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.booksan.booksan_board.dto.BoardDTO;
-import io.booksan.booksan_board.dto.BookDTO;
 import io.booksan.booksan_board.dto.BookInfoDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.dto.PageResponseDTO;
+import io.booksan.booksan_board.dto.ImageFileDTO;
 import io.booksan.booksan_board.dto.RequestDTO;
 import io.booksan.booksan_board.service.BoardService;
 import io.booksan.booksan_board.service.BookService;
 import io.booksan.booksan_board.util.MapperUtil;
 import io.booksan.booksan_board.util.TokenChecker;
 import io.booksan.booksan_board.vo.BoardVO;
-import io.booksan.booksan_board.vo.BookVO;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,36 +51,16 @@ public class BoardController {
 	
 	//게시물 등록	
 	@PostMapping("/insert")
-	public ResponseEntity<?> insertBoard(@RequestBody RequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails ) {
+	public ResponseEntity<?> insertBoard(@ModelAttribute RequestDTO requestDTO, @AuthenticationPrincipal UserDetails userDetails) {
 		log.info("Request Data: {}", requestDTO);
-		//게시물 등록 정보
-		BoardDTO boardDTO = new BoardDTO();
 		
-		//email 정보 얻기
-		String email = userDetails.getUsername();
-		
-		//Setter 메서드를 사용하여 필드값 설정(게시물 등록폼에서 얻어온 데이터 세팅)
-		boardDTO.setTitle(requestDTO.getTitle());		
-		boardDTO.setContent(requestDTO.getContent());
-		boardDTO.setBooksCategoryId(requestDTO.getBooksCategoryId());
-		boardDTO.setPrice(requestDTO.getPrice());
-		boardDTO.setEmail(email);
-		boardDTO.setIsbn(requestDTO.getIsbn());
-		
-		//책 정보 설정
-		BookDTO bookDTO = new BookDTO();
-		bookDTO.setBookTitle(requestDTO.getBookTitle());
-		bookDTO.setBookWriter(requestDTO.getBookWriter());
-		bookDTO.setBookPublisher(requestDTO.getBookPublisher());
-		bookDTO.setIsbn(requestDTO.getIsbn());
-		
-		//ISBN 존재 여부 확인(게시물 등록시 책정보테이블에 없는 ISBN인경우 책등록 요청)
-		if(bookService.isISBNExists(requestDTO.getIsbn())==0) {
-			int bookResult=bookService.insertBookInfo(mapperUtil.map(bookDTO, BookVO.class));
+		//ISBN이 있는 책일 때만 ISBN 존재 여부 확인
+		if(requestDTO.getIsbn() != null) {
+			int bookResult=bookService.insertBookInfo(requestDTO);
 		}
-		
+
 		//책정보 등록이 먼저 등록이 되어야 게시물 등록할때 책정보테이블의 isbn를 참조할수 있음
-		int boardResult=boardService.insertBoard(mapperUtil.map(boardDTO, BoardVO.class));		
+		int boardResult=boardService.insertBoard(requestDTO, userDetails);		
 		
 		//응답 데이터를 저장할 Map 생성
 		Map<String, Object> response = new HashMap<>();
@@ -89,7 +74,7 @@ public class BoardController {
 			response.put("status", "fail");
 			response.put("message", "게시물 등록 실패");
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-		}		
+		}
 	}
 	
 	//게시물 단건조회
@@ -205,8 +190,7 @@ public class BoardController {
 	} 
 
 
-    
-    @GetMapping("favorite/list")
+@GetMapping("favorite/list")
     public ResponseEntity<?> getFavoriteList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
         pageRequestDTO.setEmail(userDetails.getUsername());
         //게시물 목록 가져와서 boadList에 담기
@@ -243,4 +227,26 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+	@GetMapping("/download/{imgId}")
+	public ResponseEntity<?> downloadFile(@PathVariable("imgId") int imgId, HttpServletResponse response) throws IOException {
+		ImageFileDTO imageFileDTO = boardService.readImageFile(imgId);
+		if(imageFileDTO == null) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+		} else {
+			String imgName = imageFileDTO.getImgName();
+			imgName = URLEncoder.encode(imgName, "UTF-8");
+			
+			response.setHeader("Cache-Control", "no-cache");		// 캐시x, 최신화된 데이터
+			response.setHeader("Content-Disposition", "inline; filename=\"" + imgName + "\"");	// inline : 화면에 바로 렌더링, attachment : 첨부파일 다운로드
+			response.setContentType(imageFileDTO.getImgType());
+			response.setContentLength(imageFileDTO.getImgSize());
+
+			InputStream is = new FileInputStream("/Users/user/" + imageFileDTO.getImgUuid());		// 파일 입력 스트림에 파일 데이터 전송
+			is.transferTo(response.getOutputStream());		// 파일 출력 스트림에 파일 데이터 전송
+			is.close();
+
+			return ResponseEntity.ok(response);
+		}
+	}
 }
