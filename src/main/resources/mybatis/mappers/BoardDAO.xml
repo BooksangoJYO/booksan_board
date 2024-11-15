@@ -24,7 +24,7 @@
 
 
 	<!-- 게시물 등록 -->
-	<insert id="insertBoard">
+	<insert id="insertBoard" useGeneratedKeys="true" keyProperty="dealId">
 		insert into DEALS_BOARD (title, content, books_category_id, isbn, price,email)
 		values (#{title},#{content},#{booksCategoryId},#{isbn},#{price},#{email})
 	</insert>

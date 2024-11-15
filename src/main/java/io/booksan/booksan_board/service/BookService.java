@@ -21,6 +21,7 @@ import io.booksan.booksan_board.dto.BookDTO;
 import io.booksan.booksan_board.dto.BookInfoDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.dto.PageResponseDTO;
+import io.booksan.booksan_board.dto.RequestDTO;
 import io.booksan.booksan_board.util.MapperUtil;
 import io.booksan.booksan_board.vo.BookCommentVO;
 import io.booksan.booksan_board.vo.BookVO;
@@ -155,8 +156,21 @@ public class BookService {
 	}
 
 	//게시물 등록시 책정보 등록
-	public int insertBookInfo(BookVO bookInfoVO) {
-		return bookDAO.insertBookInfo(bookInfoVO);
+	public int insertBookInfo(RequestDTO requestDTO) {
+		int isISBNExists = isISBNExists(requestDTO.getIsbn());
+
+		//isISBNExists가 0이면 책정보가 없는 것이므로 책정보 등록
+		if (isISBNExists == 0) {
+			BookVO bookVO = new BookVO();
+			bookVO.setBookTitle(requestDTO.getBookTitle());
+			bookVO.setBookWriter(requestDTO.getBookWriter());
+			bookVO.setBookPublisher(requestDTO.getBookPublisher());
+			bookVO.setIsbn(requestDTO.getIsbn());
+			
+			return bookDAO.insertBookInfo(bookVO);	
+		}
+		
+		return 0;
 	}
 	
 	//책정보 등록하기전에 책정보테이블에서 ISBN이 있는지 확인
