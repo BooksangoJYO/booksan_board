@@ -119,12 +119,12 @@ public class BoardController {
 	public ResponseEntity<?> getBoardList(PageRequestDTO pageRequestDTO){		
 		log.info(pageRequestDTO.toString());
 		//게시물 목록 가져와서 boadList에 담기
-		PageResponseDTO<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);
-		
+		PageResponseDTO<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);		
 		
 		//응답데이터 저장할 Map
 		Map<String,Object> response = new HashMap<>();
 		log.info( boardList.toString());
+		
 		//게시물이 있는 경우
 		if(!boardList.getDtoList().isEmpty()) {
 			response.put("status", "success");
@@ -141,14 +141,10 @@ public class BoardController {
 	//게시판 수정
 	@PutMapping("/update")
 	public ResponseEntity<?> updateBoard(@RequestBody BoardDTO boardDTO, @AuthenticationPrincipal UserDetails userDetails) {
-		log.info(userDetails.getUsername());
 		String email = userDetails.getUsername();
+		
 		//응답 데이터를 저장할 response
-		Map<String, Object> response = new HashMap<>();
-		
-		boardDTO.setEmail(email);
-		
-		log.info(boardDTO.getEmail().toString());
+		Map<String, Object> response = new HashMap<>();		
 		
 		//로그인한 유저가 글작성자인지 확인하고 맞으면 수정 요청
 		if ( boardDTO.getEmail().equals(email)) {
@@ -174,7 +170,7 @@ public class BoardController {
 	@DeleteMapping("/delete/{dealId}")
 	public ResponseEntity<?> deleteBoard(@PathVariable("dealId") int dealId, @RequestBody BoardDTO boardDTO , @AuthenticationPrincipal UserDetails userDetails){
 		String email = userDetails.getUsername();
-		boardDTO.setEmail(email);
+				
 		//응답데이터 저장할 response
 		Map<String,Object> response = new HashMap<>();
 		
