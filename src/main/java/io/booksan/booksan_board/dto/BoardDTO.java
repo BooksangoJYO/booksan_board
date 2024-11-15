@@ -1,6 +1,9 @@
 package io.booksan.booksan_board.dto;
 
 import java.util.Date;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,4 +27,6 @@ public class BoardDTO {
 	private String status;
 	private String disabled;
 
+	private List<MultipartFile> files;
+	private List<ImageFileDTO> imageFileDTOList;
 }
