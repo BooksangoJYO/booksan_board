@@ -33,8 +33,6 @@ public class BoardService {
     private final BoardDAO boardDAO;
     private final MapperUtil mapperUtil;
 	private final ImageFileDAO imageFileDAO;
-//		private final String CLIENT_ID = "YOUR_CLIENT_ID";
-//		private final String CLIENT_SECRET = "YOUR_CLIENT_SECRET";
 		
 	//게시물 등록
 	@Transactional
@@ -133,5 +131,11 @@ public class BoardService {
     public int insertFavorite(int dealId, String email) {
         return boardDAO.insertFavorite(new FavoriteVO(dealId, email));
     }
+
+    //가판대 수정페이지 판매여부 전환
+	public int updateStatus(BoardVO boardVO) {
+		
+		return boardDAO.updateStatus(boardVO);
+	}
 
 }
