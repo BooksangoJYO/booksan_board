@@ -45,6 +45,32 @@
 		where comment_id = #{commentId}
 	</update>
 	
-	
+	<insert id="insertFavoriteBook">
+		INSERT INTO FAVORITES_BOOKS
+			(email, deal_id, disabled)
+		VALUES 
+			(#{email}, #{dealId}, 'N')
+		ON DUPLICATE KEY UPDATE
+			disabled = IF(disabled = 'N', 'Y', 'N'),
+			favorite_datetime = NOW()
+	</insert>
 
+	<select id="getFavoriteBookList">
+		SELECT  b.*
+		FROM BOOKS_INFO b
+		JOIN FAVORITES_BOOKS fb  ON b.isbn = fb.isbn
+		WHERE fb.email = #{email}
+		AND fb.disabled = 'N'
+		ORDER BY fb.favorite_datetime DESC
+		limit #{skip}, #{size}
+	</select>
+
+	<select id="getFavoriteBookCount">
+		select count(*)
+		FROM BOOKS_INFO b
+		JOIN FAVORITES_BOOKS fb  ON b.isbn = fb.isbn
+		WHERE fb.email = #{email}
+		AND fb.disabled = 'N'
+	</select>
+	
 </mapper>

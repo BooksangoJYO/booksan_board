@@ -5,6 +5,9 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import io.booksan.booksan_board.dto.PageRequestDTO;
+import io.booksan.booksan_board.entity.BoardReservationEntity;
+import io.booksan.booksan_board.entity.BookAlertEntity;
+import io.booksan.booksan_board.vo.BoardReservationVO;
 import io.booksan.booksan_board.vo.BoardVO;
 import io.booksan.booksan_board.vo.FavoriteVO;
 
@@ -34,5 +37,15 @@ public interface BoardDAO {
     int getFavoriteCount(PageRequestDTO pageRequestDTO);
 
     int insertFavorite(FavoriteVO favoriteVO);
+
+    public List<BoardReservationVO> getBoardReservationList(String email);
+
+    int insertBoardReservation(BoardReservationEntity boardReservationEntity);
+
+    int updateBoardReservation(BoardReservationEntity boardReservationEntity);
+
+    int updateBookAlert(BookAlertEntity bookAlertEntity);
+
+    public List<String> getReservationPeople(String isbn);
 
 }

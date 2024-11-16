@@ -97,4 +97,55 @@
 		AND fd.disabled = 'N'
 	</select>
 
+
+	<update id="updateBookAlert">
+        UPDATE USERS
+        <choose>
+            <when test="action == 'increase'">
+                SET book_alert = book_alert + 1
+            </when>
+            <when test="action == 'decrease'">
+                SET book_alert = book_alert - #{bookAlert}
+            </when>
+        </choose>
+        WHERE email = #{email}
+    </update>
+
+	<insert id="insertBoardReservation">
+        INSERT INTO BOARD_RESERVATION	(email , deal_id)
+        VALUES (#{email},#{deal_id})
+    </insert>
+
+    <update id="updateBoardReservation">
+        UPDATE BOARD_RESERVATION
+        SET read_time = NOW()
+        WHERE email = #{email}
+        AND read_time IS NULL
+    </update>
+
+	<select id="getBoardReservationList">
+		SELECT 
+			d.deal_id,
+			d.title AS deal_title,
+			bi.book_title,
+			bi.book_image_url,
+			br.write_time AS reservation_time
+		FROM 
+			DEALS_BOARD d
+			INNER JOIN BOARD_RESERVATION br ON br.deal_id = d.deal_id 
+			INNER JOIN BOOKS_INFO bi ON d.isbn = bi.isbn
+		WHERE 
+			br.email = #{email}
+			AND br.read_time IS NULL
+			AND d.DISABLED = 'N'
+		ORDER BY 
+			br.write_time DESC
+	</select>
+
+	<select id="getReservationPeople">
+		SELECT email FROM FAVORITES_BOOKS
+		where isbn = #{isbn}
+		AND DISABLED = 'N'
+	</select>
+	
 </mapper>
