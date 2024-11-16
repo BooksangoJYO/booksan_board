@@ -228,7 +228,7 @@ public class BoardController {
         }
     }
 
-	@GetMapping("/download/{imgId}")
+	@GetMapping("/read/download/{imgId}")
 	public ResponseEntity<?> downloadFile(@PathVariable("imgId") int imgId, HttpServletResponse response) throws IOException {
 		ImageFileDTO imageFileDTO = boardService.readImageFile(imgId);
 		if(imageFileDTO == null) {

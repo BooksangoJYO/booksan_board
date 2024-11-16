@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -86,9 +87,18 @@ public class BoardService {
 	//게시물 단건 조회
 	public BoardDTO readBoardById(int dealId) {			
 		BoardVO boardVO = boardDAO.readBoardById(dealId);
+		BoardDTO boardDTO = mapperUtil.map(boardVO, BoardDTO.class);
+		if(boardDTO != null) {
+			boardDTO.setImageFileDTOList(
+				imageFileDAO.getImageFileList(dealId)
+					.stream()
+					.map(imageFileVO -> mapperUtil.map(imageFileVO, ImageFileDTO.class))
+					.collect(Collectors.toList())
+			);
+
+		}
 		
-		//BoardVO를 BoardDTO로 변환하여 반환
-		return mapperUtil.map(boardVO, BoardDTO.class);
+		return boardDTO;
 	}
 
 

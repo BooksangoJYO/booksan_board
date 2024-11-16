@@ -11,8 +11,8 @@ public interface ImageFileDAO {
     int insertImageFile(ImageFileVO imageFileVO);
     
     // 이미지 리스트 불러오기
-    List<ImageFileVO> getImageFileList(int imgId);
+    List<ImageFileVO> getImageFileList(int dealId);
 
     // 이미지 불러오기
-    ImageFileVO readImageFile(int imgId);
+    ImageFileVO readImageFile(int dealId);
 }
