@@ -9,7 +9,9 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,6 +33,7 @@ import io.booksan.booksan_board.dto.RequestDTO;
 import io.booksan.booksan_board.service.BoardService;
 import io.booksan.booksan_board.service.BookService;
 import io.booksan.booksan_board.util.MapperUtil;
+import io.booksan.booksan_board.util.TokenChecker;
 import io.booksan.booksan_board.vo.BoardVO;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +47,7 @@ public class BoardController {
 	private final MapperUtil mapperUtil;
 	private final BoardService boardService;
 	private final BookService bookService;
-	
+	 private final TokenChecker tokenChecker;
 	
 	//게시물 등록	
 	@PostMapping("/insert")
@@ -75,21 +79,31 @@ public class BoardController {
 	
 	//게시물 단건조회
 	@GetMapping("/read/{dealId}") 
-	public ResponseEntity<?> readBoard(@PathVariable("dealId") int dealId){
-		
+	public ResponseEntity<?> readBoard(@PathVariable("dealId") int dealId, @RequestHeader Map<String,String> request){
+		log.info(request.toString());
+		String token = request.get("accesstoken");
 		
 		//단건조회 결과 boardVO에 담음
 		BoardDTO boardDTO = boardService.readBoardById(dealId);
 		
-		
 		//응답 데이터 저장할 Map
 		Map<String, Object> response = new HashMap<>();
-		
+			
 		if(boardDTO != null) {
 			BookInfoDTO bookInfo = bookService.searchBook(boardDTO.getIsbn());
 			response.put("status", "success");
 			response.put("data", boardDTO);
 			response.put("bookData", bookInfo);
+			if(token != null) {
+				Map<String, Object> result = tokenChecker.tokenCheck(token);
+				if ((Boolean) result.get("status")) {
+					if(result.get("email").equals(boardDTO.getEmail())){
+						response.put("isWriter",true);
+						return ResponseEntity.ok(response);
+					}
+                }
+			}
+			response.put("isWriter",false);
 			return ResponseEntity.ok(response);
 		} else {
 			response.put("stauts", "fail");
