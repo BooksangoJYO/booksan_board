@@ -3,9 +3,11 @@
 
 <mapper namespace="io.booksan.booksan_board.dao.BoardDAO">
 	<sql id="search">
-		<where>
+		<where>			
 			<!-- 항상 적용되는 조건(삭제여부='N') -->
-			disabled ='N'			
+			disabled ='N'	
+			
+			<!-- 키워드 조건 -->		
 			<if test="keyword != null and keyword != ''">
 				AND
  				<choose>
@@ -38,7 +40,13 @@
 	<select id="getBoardList">
 		select * from DEALS_BOARD d join BOOKS_INFO b on d.isbn = b.isbn
 		<include refid="search" />
-		order by insert_datetime DESC 
+		<if test="booksCategoryId != null and booksCategoryId != 0">
+		    AND d.books_category_id = #{booksCategoryId}
+		</if>		
+	    <if test="availableOnly != null and availableOnly">
+	        AND d.status = 'N' <!-- 'N'은 판매 중 상태 -->
+	    </if>
+		order by deal_id DESC 
 		limit #{skip}, #{size}
 	</select>
 	
