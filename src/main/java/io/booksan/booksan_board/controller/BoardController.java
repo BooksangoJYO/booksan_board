@@ -190,7 +190,7 @@ public class BoardController {
 	} 
 
 
-@GetMapping("favorite/list")
+	@GetMapping("favorite/list")
     public ResponseEntity<?> getFavoriteList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
         pageRequestDTO.setEmail(userDetails.getUsername());
         //게시물 목록 가져와서 boadList에 담기
@@ -247,6 +247,31 @@ public class BoardController {
 			is.close();
 
 			return ResponseEntity.ok(response);
+		}
+	}
+	
+	//가판대 수정 판매여부상태 변경
+	@PutMapping("/status/update")
+	public ResponseEntity<?> updateStatus(@RequestBody BoardDTO boardDTO) {
+		Map<String, Object> response = new HashMap<>();
+		
+		try {
+			int result = boardService.updateStatus(mapperUtil.map(boardDTO, BoardVO.class));
+			
+			if(result==1) {
+				response.put("status", "success");
+				response.put("message", "판매 상태가 성공적으로 변경되었습니다.");
+				return ResponseEntity.ok(response);
+			} else {
+				response.put("status", "fail");
+				response.put("message", "판매 상태 변경 실패");
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+			}			
+		} catch (Exception e) {
+			//예외 처리
+			response.put("status", "fail");
+			response.put("message", "서버 오류 발생: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
 		}
 	}
 }

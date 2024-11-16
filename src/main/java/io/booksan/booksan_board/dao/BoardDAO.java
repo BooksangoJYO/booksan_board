@@ -34,5 +34,8 @@ public interface BoardDAO {
     int getFavoriteCount(PageRequestDTO pageRequestDTO);
 
     int insertFavorite(FavoriteVO favoriteVO);
+    
+    //가판대 수정페이지 판매여부 변경
+	int updateStatus(BoardVO boardVO);
 
 }
