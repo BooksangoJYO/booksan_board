@@ -34,6 +34,11 @@ public class PageRequestDTO {
     private String to;
     private String email;
     private String dealId;
+    @Builder.Default
+    private int booksCategoryId = 0; // 기본값: 0 (전체 게시물)
+
+    @Builder.Default
+    private Boolean availableOnly = false; // 기본값: false
 
     public int getSkip() {
         return (page - 1) * size;
