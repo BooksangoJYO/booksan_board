@@ -39,5 +39,5 @@ public interface BookDAO {
 
     int getFavoriteBookCount(PageRequestDTO pageRequestDTO);
 
-    int insertFavoriteBook(FavoriteBookVO favoriteBooVO);
+    int insertFavoriteBook(FavoriteBookVO favoriteBooKVO);
 }

@@ -37,7 +37,7 @@ public class BoardService {
     private final BoardDAO boardDAO;
     private final MapperUtil mapperUtil;
 
-	private final ImageFileDAO imageFileDAO;
+    private final ImageFileDAO imageFileDAO;
 
     //게시물 등록
     @Transactional
@@ -59,30 +59,33 @@ public class BoardService {
         // 이미지 등록
         final int result = boardDAO.insertBoard(boardVO);
         try {
-            for (MultipartFile file : requestDTO.getFiles()) {
-                if (!file.isEmpty()) {
-                    String imageUuid = UUID.randomUUID().toString();
+            if (requestDTO.getFiles() != null) {
+                for (MultipartFile file : requestDTO.getFiles()) {
+                    if (!file.isEmpty()) {
+                        String imageUuid = UUID.randomUUID().toString();
 
-                    OutputStream os = new FileOutputStream("/Users/user/" + imageUuid);
-                    file.getInputStream().transferTo(os);
-                    os.close();
+                        OutputStream os = new FileOutputStream("/Users/user/" + imageUuid);
+                        file.getInputStream().transferTo(os);
+                        os.close();
 
-                    ImageFileVO imageFileVO = new ImageFileVO();
+                        ImageFileVO imageFileVO = new ImageFileVO();
 
-                    imageFileVO.setDealId(boardVO.getDealId());
-                    imageFileVO.setImgName(file.getOriginalFilename());
-                    imageFileVO.setImgUuid(imageUuid);
-                    imageFileVO.setImgType(file.getContentType());
-                    imageFileVO.setImgSize((int) file.getSize());
+                        imageFileVO.setDealId(boardVO.getDealId());
+                        imageFileVO.setImgName(file.getOriginalFilename());
+                        imageFileVO.setImgUuid(imageUuid);
+                        imageFileVO.setImgType(file.getContentType());
+                        imageFileVO.setImgSize((int) file.getSize());
 
-                    log.info("*** imageFileVO :" + imageFileVO.toString());
+                        log.info("*** imageFileVO :" + imageFileVO.toString());
 
-                    imageFileDAO.insertImageFile(imageFileVO);
+                        imageFileDAO.insertImageFile(imageFileVO);
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        log.info("****책 등록 오류!!!!!!");
         //해당 책에 대한 거래에 알림설정을 해논 사용자들에게 알림 설정
         List<String> reservationPeople = boardDAO.getReservationPeople(boardVO.getIsbn());
         if (reservationPeople != null && !reservationPeople.isEmpty()) {
@@ -91,6 +94,7 @@ public class BoardService {
                 boardReservationEntity.setEmail(userEmail);
                 boardReservationEntity.setDealId(boardVO.getDealId());
                 boardDAO.insertBoardReservation(boardReservationEntity);
+                log.info("***카운트 오류!!!!!!");
                 boardDAO.updateBookAlert(new BookAlertEntity(userEmail, "increase", 0));
             }
         }
@@ -99,21 +103,21 @@ public class BoardService {
     }
 
     //게시물 단건 조회
-   public BoardDTO readBoardById(int dealId) {			
-		BoardVO boardVO = boardDAO.readBoardById(dealId);
-		BoardDTO boardDTO = mapperUtil.map(boardVO, BoardDTO.class);
-		if(boardDTO != null) {
-			boardDTO.setImageFileDTOList(
-				imageFileDAO.getImageFileList(dealId)
-					.stream()
-					.map(imageFileVO -> mapperUtil.map(imageFileVO, ImageFileDTO.class))
-					.collect(Collectors.toList())
-			);
+    public BoardDTO readBoardById(int dealId) {
+        BoardVO boardVO = boardDAO.readBoardById(dealId);
+        BoardDTO boardDTO = mapperUtil.map(boardVO, BoardDTO.class);
+        if (boardDTO != null) {
+            boardDTO.setImageFileDTOList(
+                    imageFileDAO.getImageFileList(dealId)
+                            .stream()
+                            .map(imageFileVO -> mapperUtil.map(imageFileVO, ImageFileDTO.class))
+                            .collect(Collectors.toList())
+            );
 
-		}
-		
-		return boardDTO;
-	}
+        }
+
+        return boardDTO;
+    }
 
     //게시물 목록
     public PageResponseDTO<BoardDTO> getBoardList(PageRequestDTO pageRequestDTO) {
@@ -157,7 +161,6 @@ public class BoardService {
         return boardDAO.insertFavorite(new FavoriteVO(dealId, email));
     }
 
-
     public List<BoardReservationDTO> getBoardReservationList(String email) {
         List<BoardReservationDTO> bookReservationList = boardDAO.getBoardReservationList(email).stream()
                 .map(boardReservationVO -> mapperUtil.map(boardReservationVO, BoardReservationDTO.class))
@@ -168,10 +171,9 @@ public class BoardService {
     }
 
     //가판대 수정페이지 판매여부 전환
-	public int updateStatus(BoardVO boardVO) {
-		
-		return boardDAO.updateStatus(boardVO);
-	}
+    public int updateStatus(BoardVO boardVO) {
 
+        return boardDAO.updateStatus(boardVO);
+    }
 
 }
