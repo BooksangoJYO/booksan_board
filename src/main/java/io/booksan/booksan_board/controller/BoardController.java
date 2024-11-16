@@ -139,7 +139,7 @@ public class BoardController {
 	
 	//게시판 수정
 	@PutMapping("/update")
-	public ResponseEntity<?> updateBoard(@RequestBody BoardDTO boardDTO, @AuthenticationPrincipal UserDetails userDetails) {
+	public ResponseEntity<?> updateBoard(@ModelAttribute BoardDTO boardDTO, @AuthenticationPrincipal UserDetails userDetails) {
 		String email = userDetails.getUsername();
 		
 		//응답 데이터를 저장할 response
