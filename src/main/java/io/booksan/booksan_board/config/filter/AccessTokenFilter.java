@@ -44,7 +44,7 @@ public class AccessTokenFilter extends OncePerRequestFilter {
         }
         try {
         	log.info("필터 통과 실패");
-            String token = request.getHeader("accessToken");;
+            String token = request.getHeader("accessToken");
             log.info("*****token token " + token);
             if (token != null) {
                 // Access Token 검증
