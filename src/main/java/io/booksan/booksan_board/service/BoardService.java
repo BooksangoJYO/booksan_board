@@ -36,9 +36,8 @@ public class BoardService {
 
     private final BoardDAO boardDAO;
     private final MapperUtil mapperUtil;
-    private final ImageFileDAO imageFileDAO;
-//		private final String CLIENT_ID = "YOUR_CLIENT_ID";
-//		private final String CLIENT_SECRET = "YOUR_CLIENT_SECRET";
+
+	private final ImageFileDAO imageFileDAO;
 
     //게시물 등록
     @Transactional
@@ -100,12 +99,21 @@ public class BoardService {
     }
 
     //게시물 단건 조회
-    public BoardDTO readBoardById(int dealId) {
-        BoardVO boardVO = boardDAO.readBoardById(dealId);
+   public BoardDTO readBoardById(int dealId) {			
+		BoardVO boardVO = boardDAO.readBoardById(dealId);
+		BoardDTO boardDTO = mapperUtil.map(boardVO, BoardDTO.class);
+		if(boardDTO != null) {
+			boardDTO.setImageFileDTOList(
+				imageFileDAO.getImageFileList(dealId)
+					.stream()
+					.map(imageFileVO -> mapperUtil.map(imageFileVO, ImageFileDTO.class))
+					.collect(Collectors.toList())
+			);
 
-        //BoardVO를 BoardDTO로 변환하여 반환
-        return mapperUtil.map(boardVO, BoardDTO.class);
-    }
+		}
+		
+		return boardDTO;
+	}
 
     //게시물 목록
     public PageResponseDTO<BoardDTO> getBoardList(PageRequestDTO pageRequestDTO) {
@@ -149,6 +157,7 @@ public class BoardService {
         return boardDAO.insertFavorite(new FavoriteVO(dealId, email));
     }
 
+
     public List<BoardReservationDTO> getBoardReservationList(String email) {
         List<BoardReservationDTO> bookReservationList = boardDAO.getBoardReservationList(email).stream()
                 .map(boardReservationVO -> mapperUtil.map(boardReservationVO, BoardReservationDTO.class))
@@ -157,5 +166,12 @@ public class BoardService {
         boardDAO.updateBookAlert(new BookAlertEntity(email, "decrease", result));
         return bookReservationList;
     }
+
+    //가판대 수정페이지 판매여부 전환
+	public int updateStatus(BoardVO boardVO) {
+		
+		return boardDAO.updateStatus(boardVO);
+	}
+
 
 }

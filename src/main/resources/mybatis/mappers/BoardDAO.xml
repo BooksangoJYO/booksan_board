@@ -68,6 +68,13 @@
 		from DEALS_BOARD d join BOOKS_INFO b on d.isbn = b.isbn
 		<include refid="search" />
 	</select>
+	
+	<!-- 가판대 수정 판매여부 상태 변경 -->
+	<update id="updateStatus">
+		update DEALS_BOARD
+		set status=#{status}
+		where deal_id=#{dealId}	
+	</update>
 
 	<insert id="insertFavorite">
 		INSERT INTO FAVORITES_DEALS 
