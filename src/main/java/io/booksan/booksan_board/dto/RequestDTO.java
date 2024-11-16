@@ -12,17 +12,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RequestDTO {
-	//게시물 등록 정보
-	private String title;
-	private String content;
-	private int booksCategoryId;
-	private int price;
-	private String email;
-	private List<MultipartFile> files;
-	
-	//책 정보
-	private String isbn;
-	private String bookTitle;
-	private String bookWriter;
-	private String bookPublisher; 
+    //게시물 등록 정보
+
+    private String title;
+    private String content;
+    private int booksCategoryId;
+    private int price;
+    private String email;
+    private List<MultipartFile> files;
+
+    //책 정보
+    private String isbn;
+    private String bookTitle;
+    private String bookWriter;
+    private String bookPublisher;
+    private String bookImageUrl;
 }

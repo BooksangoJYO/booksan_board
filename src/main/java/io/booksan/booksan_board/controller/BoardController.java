@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -22,13 +23,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.booksan.booksan_board.dto.BoardDTO;
+import io.booksan.booksan_board.dto.BoardReservationDTO;
 import io.booksan.booksan_board.dto.BookInfoDTO;
+import io.booksan.booksan_board.dto.ImageFileDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.dto.PageResponseDTO;
-import io.booksan.booksan_board.dto.ImageFileDTO;
 import io.booksan.booksan_board.dto.RequestDTO;
 import io.booksan.booksan_board.service.BoardService;
 import io.booksan.booksan_board.service.BookService;
@@ -44,6 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @RequestMapping("/api/board")
 public class BoardController {
+
 	private final MapperUtil mapperUtil;
 	private final BoardService boardService;
 	private final BookService bookService;
@@ -226,6 +230,13 @@ public class BoardController {
             response.put("message", "서버오류입니다");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+
+    @GetMapping("/reservation/list")
+    @ResponseBody
+    public List<BoardReservationDTO> boardReservationList(@AuthenticationPrincipal UserDetails userDetails) {
+        return boardService.getBoardReservationList(userDetails.getUsername());
     }
 
 	@GetMapping("/read/download/{imgId}")
