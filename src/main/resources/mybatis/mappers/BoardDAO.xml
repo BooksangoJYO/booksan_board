@@ -95,7 +95,7 @@
 	</insert>
 
 	<select id="getFavoriteList">
-		SELECT  DEAL.*
+		SELECT  d.*
 		FROM DEALS_BOARD d
 		JOIN FAVORITES_DEALS fd  ON d.deal_id = fd.deal_id
 		WHERE fd.email = #{email}
