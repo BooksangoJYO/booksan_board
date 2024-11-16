@@ -21,6 +21,12 @@
 					</when>
 				</choose>
 			</if>
+			<if test="booksCategoryId != null and booksCategoryId != 0">
+			    AND d.books_category_id = #{booksCategoryId}
+			</if>		
+		    <if test="availableOnly != null and availableOnly">
+		        AND d.status = 'N' <!-- 'N'은 판매 중 상태 -->
+		    </if>
 		</where>
 	</sql>
 
@@ -40,12 +46,6 @@
 	<select id="getBoardList">
 		select * from DEALS_BOARD d join BOOKS_INFO b on d.isbn = b.isbn
 		<include refid="search" />
-		<if test="booksCategoryId != null and booksCategoryId != 0">
-		    AND d.books_category_id = #{booksCategoryId}
-		</if>		
-	    <if test="availableOnly != null and availableOnly">
-	        AND d.status = 'N' <!-- 'N'은 판매 중 상태 -->
-	    </if>
 		order by deal_id DESC 
 		limit #{skip}, #{size}
 	</select>
