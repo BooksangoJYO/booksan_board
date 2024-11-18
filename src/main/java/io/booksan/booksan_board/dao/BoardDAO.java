@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.entity.BoardReservationEntity;
 import io.booksan.booksan_board.entity.BookAlertEntity;
+import io.booksan.booksan_board.vo.BoardReadLogVO;
 import io.booksan.booksan_board.vo.BoardReservationVO;
 import io.booksan.booksan_board.vo.BoardVO;
 import io.booksan.booksan_board.vo.FavoriteVO;
@@ -37,9 +38,9 @@ public interface BoardDAO {
     int getFavoriteCount(PageRequestDTO pageRequestDTO);
 
     int insertFavorite(FavoriteVO favoriteVO);
-    
+
     //가판대 수정페이지 판매여부 변경
-	int updateStatus(BoardVO boardVO);
+    int updateStatus(BoardVO boardVO);
 
     public List<BoardReservationVO> getBoardReservationList(String email);
 
@@ -50,5 +51,7 @@ public interface BoardDAO {
     int updateBookAlert(BookAlertEntity bookAlertEntity);
 
     public List<String> getReservationPeople(String isbn);
+
+    public void insertBoardReadLog(BoardReadLogVO boardReadLog);
 
 }
