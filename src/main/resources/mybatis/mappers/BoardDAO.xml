@@ -27,6 +27,9 @@
 		    <if test="availableOnly != null and availableOnly">
 		        AND d.status = 'N' <!-- 'N'은 판매 중 상태 -->
 		    </if>
+		    <if test="email != null and email != ''">
+		        AND d.email = #{email} <!-- 'N'은 판매 중 상태 -->
+		    </if>
 		</where>
 	</sql>
 
@@ -95,7 +98,7 @@
 	</insert>
 
 	<select id="getFavoriteList">
-		SELECT  DEAL.*
+		SELECT  d.*
 		FROM DEALS_BOARD d
 		JOIN FAVORITES_DEALS fd  ON d.deal_id = fd.deal_id
 		WHERE fd.email = #{email}
