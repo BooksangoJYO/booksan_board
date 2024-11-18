@@ -29,4 +29,5 @@ public class BoardDTO {
 
 	private List<MultipartFile> files;
 	private List<ImageFileDTO> imageFileDTOList;
+	private List<Integer> existingImageIds;
 }

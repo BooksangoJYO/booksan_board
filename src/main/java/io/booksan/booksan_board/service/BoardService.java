@@ -2,6 +2,8 @@ package io.booksan.booksan_board.service;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -132,8 +134,54 @@ public class BoardService {
     }
 
     //게시물 수정
-    public int updateBoard(BoardVO boardVO) {
-        return boardDAO.updateBoard(boardVO);
+    @Transactional
+	public int updateBoard(BoardDTO boardDTO) {
+        //게시물 등록폼에서 얻어온 데이터 세팅
+        BoardVO boardVO = new BoardVO();
+		boardVO.setDealId(boardDTO.getDealId());
+		boardVO.setTitle(boardDTO.getTitle());
+        boardVO.setContent(boardDTO.getContent());
+        boardVO.setBooksCategoryId(boardDTO.getBooksCategoryId());
+        boardVO.setPrice(boardDTO.getPrice());
+        boardVO.setStatus(boardDTO.getStatus());
+		
+		ImageFileVO imageFileVO = new ImageFileVO();
+		imageFileVO.setImgIds(boardDTO.getExistingImageIds());
+
+		final int result = boardDAO.updateBoard(boardVO);
+		try {
+			if (boardDTO.getFiles() != null) {
+				if(imageFileVO.getImgIds() == null) {
+					imageFileVO.setImgIds(new ArrayList<>());
+				}
+				imageFileDAO.deleteImageFiles(imageFileVO.getImgIds(), boardDTO.getDealId());
+				for (MultipartFile file : boardDTO.getFiles()) {
+					if (!file.isEmpty()) {
+                        String imageUuid = UUID.randomUUID().toString();
+
+                        OutputStream os = new FileOutputStream("/Users/user/" + imageUuid);
+                        file.getInputStream().transferTo(os);
+                        os.close();
+
+                        imageFileVO = new ImageFileVO();
+
+                        imageFileVO.setDealId(boardVO.getDealId());
+                        imageFileVO.setImgName(file.getOriginalFilename());
+                        imageFileVO.setImgUuid(imageUuid);
+                        imageFileVO.setImgType(file.getContentType());
+                        imageFileVO.setImgSize((int) file.getSize());
+
+                        log.info("*** imageFileVO :" + imageFileVO.toString());
+
+                        imageFileDAO.insertImageFile(imageFileVO);
+                    }
+                }
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return result;
     }
 
     public ImageFileDTO readImageFile(int imgId) {

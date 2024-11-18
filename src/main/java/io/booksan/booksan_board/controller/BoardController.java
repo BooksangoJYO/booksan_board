@@ -149,10 +149,8 @@ public class BoardController {
 
         //로그인한 유저가 글작성자인지 확인하고 맞으면 수정 요청
         if (boardDTO.getEmail().equals(email)) {
-
-            int result = boardService.updateBoard(mapperUtil.map(boardDTO, BoardVO.class));
-
-            if (result == 1) {
+			int result = boardService.updateBoard(boardDTO);
+			if (result == 1) {
                 response.put("status", "success");
                 response.put("message", "게시물 수정 성공");
                 return ResponseEntity.ok(response);

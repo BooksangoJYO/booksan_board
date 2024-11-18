@@ -20,11 +20,21 @@
 	</insert>
 
 	<select id="getImageFileList" resultType="io.booksan.booksan_board.vo.ImageFileVO">
-		select * from DEALS_IMAGES where deal_id = #{deal_id}
+		select * from DEALS_IMAGES where deal_id = #{dealId}
 	</select>
 	
 	<select id="readImageFile" resultType="io.booksan.booksan_board.vo.ImageFileVO">
-		SELECT * FROM DEALS_IMAGES where img_id = #{img_id}
+		SELECT * FROM DEALS_IMAGES where img_id = #{imgId}
 	</select>	
 
+	<delete id="deleteImageFiles" parameterType="io.booksan.booksan_board.vo.ImageFileVO">
+		delete from DEALS_IMAGES
+		where deal_id = #{dealId}
+		<if test="imgIds != null and !imgIds.isEmpty()">
+			and img_id not in
+			<foreach item="id" collection="imgIds" open="(" separator="," close=")">
+				#{id}
+			</foreach>
+		</if>
+	</delete>
 </mapper>	
