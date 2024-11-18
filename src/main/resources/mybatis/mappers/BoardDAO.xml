@@ -29,6 +29,8 @@
 		    </if>
 		    <if test="email != null and email != ''">
 		        AND d.email = #{email} <!-- 'N'은 판매 중 상태 -->
+		    <if test="isbn != null and isbn != ''">
+		        AND d.isbn = #{isbn} <!-- 'N'은 판매 중 상태 -->
 		    </if>
 		</where>
 	</sql>
@@ -131,7 +133,7 @@
 
 	<insert id="insertBoardReservation">
         INSERT INTO BOARD_RESERVATION	(email , deal_id)
-        VALUES (#{email},#{deal_id})
+        VALUES (#{email},#{dealId})
     </insert>
 
     <update id="updateBoardReservation">
@@ -142,12 +144,12 @@
     </update>
 
 	<select id="getBoardReservationList">
-		SELECT 
+		SELECT
 			d.deal_id,
-			d.title AS deal_title,
+			d.title,
 			bi.book_title,
 			bi.book_image_url,
-			br.write_time AS reservation_time
+			br.write_time
 		FROM 
 			DEALS_BOARD d
 			INNER JOIN BOARD_RESERVATION br ON br.deal_id = d.deal_id 

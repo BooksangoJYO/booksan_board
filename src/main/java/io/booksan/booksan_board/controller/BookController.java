@@ -204,7 +204,7 @@ public class BookController {
         String email = userDetails.getUsername();
         int result = bookService.insertFavoriteBook(isbn, email);
         Map<String, Object> response = new HashMap<>();
-        if (result == 1) {
+        if (result == 1 || result == 2) {
             response.put("status", "success");
             return ResponseEntity.ok(response);
         } else {

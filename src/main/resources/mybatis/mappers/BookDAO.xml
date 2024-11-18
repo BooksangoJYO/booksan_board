@@ -47,9 +47,9 @@
 	
 	<insert id="insertFavoriteBook">
 		INSERT INTO FAVORITES_BOOKS
-			(email, deal_id, disabled)
+			(email, isbn)
 		VALUES 
-			(#{email}, #{dealId}, 'N')
+			(#{email}, #{isbn})
 		ON DUPLICATE KEY UPDATE
 			disabled = IF(disabled = 'N', 'Y', 'N'),
 			favorite_datetime = NOW()
