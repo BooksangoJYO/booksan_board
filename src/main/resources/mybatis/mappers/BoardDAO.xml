@@ -167,5 +167,10 @@
 		where isbn = #{isbn}
 		AND DISABLED = 'N'
 	</select>
-	
+
+	<insert id="insertBoardReadLog">
+		INSERT INTO DEALS_READ_LOG	(email , deal_id,isbn)
+        VALUES (#{email},#{dealId},#{isbn})
+	</insert>
+
 </mapper>

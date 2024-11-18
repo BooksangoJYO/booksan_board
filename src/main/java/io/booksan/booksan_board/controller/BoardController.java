@@ -82,12 +82,13 @@ public class BoardController {
     //게시물 단건조회
     @GetMapping("/read/{dealId}")
     public ResponseEntity<?> readBoard(@PathVariable("dealId") int dealId, @RequestHeader Map<String, String> request) {
-        log.info(request.toString());
         String token = request.get("accesstoken");
-
+        Map<String, Object> loginData = null;
+        if (token != null) {
+            loginData = tokenChecker.tokenCheck(token);
+        }
         //단건조회 결과 boardVO에 담음
-        BoardDTO boardDTO = boardService.readBoardById(dealId);
-
+        BoardDTO boardDTO = boardService.readBoardById(dealId, loginData);
         //응답 데이터 저장할 Map
         Map<String, Object> response = new HashMap<>();
 
@@ -96,10 +97,9 @@ public class BoardController {
             response.put("status", "success");
             response.put("data", boardDTO);
             response.put("bookData", bookInfo);
-            if (token != null) {
-                Map<String, Object> result = tokenChecker.tokenCheck(token);
-                if ((Boolean) result.get("status")) {
-                    if (result.get("email").equals(boardDTO.getEmail())) {
+            if (loginData != null) {
+                if ((Boolean) loginData.get("status")) {
+                    if (loginData.get("email").equals(boardDTO.getEmail())) {
                         response.put("isWriter", true);
                         return ResponseEntity.ok(response);
                     }
@@ -231,7 +231,6 @@ public class BoardController {
         return boardService.getBoardReservationList(userDetails.getUsername());
     }
 
-
     @GetMapping("/read/download/{imgId}")
     public ResponseEntity<?> downloadFile(@PathVariable("imgId") int imgId, HttpServletResponse response) throws IOException {
         ImageFileDTO imageFileDTO = boardService.readImageFile(imgId);
@@ -278,31 +277,32 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-  @GetMapping("mypage/list")
-	public ResponseEntity<?> getBoardMypageList(PageRequestDTO pageRequestDTO ,@AuthenticationPrincipal UserDetails userDetails){
-		pageRequestDTO.setEmail(userDetails.getUsername());
-		
-	    log.info("Requested page: " + pageRequestDTO.getPage());
-	    log.info("Page size: " + pageRequestDTO.getSize());
-	    log.info("Skip value: " + pageRequestDTO.getSkip());
-		
-		PageResponseDTO<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);		
-		
-		log.info("Response page: " + boardList.getPage());
-		
-		//응답데이터 저장할 Map
-		Map<String,Object> response = new HashMap<>();
-		
-		//게시물이 있는 경우
-		if(!boardList.getDtoList().isEmpty()) {
-			response.put("status", "success");
-			response.put("data", boardList);
-			return ResponseEntity.ok(response);
-		} else {
-			//게시물이 없는 경우
-			response.put("status", "fail");
-			response.put("message", "게시물이 없습니다.");
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
-		}
-	}
+
+    @GetMapping("mypage/list")
+    public ResponseEntity<?> getBoardMypageList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+        pageRequestDTO.setEmail(userDetails.getUsername());
+
+        log.info("Requested page: " + pageRequestDTO.getPage());
+        log.info("Page size: " + pageRequestDTO.getSize());
+        log.info("Skip value: " + pageRequestDTO.getSkip());
+
+        PageResponseDTO<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);
+
+        log.info("Response page: " + boardList.getPage());
+
+        //응답데이터 저장할 Map
+        Map<String, Object> response = new HashMap<>();
+
+        //게시물이 있는 경우
+        if (!boardList.getDtoList().isEmpty()) {
+            response.put("status", "success");
+            response.put("data", boardList);
+            return ResponseEntity.ok(response);
+        } else {
+            //게시물이 없는 경우
+            response.put("status", "fail");
+            response.put("message", "게시물이 없습니다.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        }
+    }
 }
