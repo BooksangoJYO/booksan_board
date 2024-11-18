@@ -27,6 +27,9 @@
 		    <if test="availableOnly != null and availableOnly">
 		        AND d.status = 'N' <!-- 'N'은 판매 중 상태 -->
 		    </if>
+		    <if test="isbn != null and isbn != ''">
+		        AND d.isbn = #{isbn} <!-- 'N'은 판매 중 상태 -->
+		    </if>
 		</where>
 	</sql>
 
