@@ -73,9 +73,46 @@
 		AND fb.disabled = 'N'
 	</select>
 	
+
+	<!-- 조회수 기준 상위 4권 -->
+	<select id="getMostViewedBooks">
+	    SELECT 
+	        isbn,
+	        book_title as bookTitle,
+	        book_writer as bookWriter,
+	        book_publisher as bookPublisher,
+	        book_image_url as bookImageUrl,
+	        book_read_count as bookReadCount
+	    FROM BOOKS_INFO 
+	    WHERE book_read_count > 0
+	    ORDER BY book_read_count DESC
+	    LIMIT 4
+	</select>
+	
+	<!-- 랜덤 4권 -->
+	<select id="getRandomBooks">
+	    SELECT 
+	        isbn,
+	        book_title as bookTitle,
+	        book_writer as bookWriter,
+	        book_publisher as bookPublisher,
+	        book_image_url as bookImageUrl
+	    FROM BOOKS_INFO
+	    WHERE isbn IN (
+	        SELECT DISTINCT isbn
+	        FROM DEALS_BOARD
+	        WHERE disabled = 'N'
+	    )
+	    ORDER BY RAND()
+	    LIMIT 4
+	</select>
+
+	
+
 	<update id="updateBookReadCount">
 		update BOOKS_INFO
 			SET book_read_count = book_read_count+1
 			where isbn = #{isbn}
 	</update>
+
 </mapper>

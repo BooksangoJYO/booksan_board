@@ -215,4 +215,14 @@ public class BookService {
         return bookDAO.insertFavoriteBook(new FavoriteBookVO(isbn, email));
     }
 
+    public List<BookDTO> getRecommendedBooks() {
+        List<BookDTO> recommended = bookDAO.getMostViewedBooks();
+        
+        if(recommended == null || recommended.isEmpty()) {
+            recommended = bookDAO.getRandomBooks();
+        }
+        
+        return recommended;
+    }
+
 }
