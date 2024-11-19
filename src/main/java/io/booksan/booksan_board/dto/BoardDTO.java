@@ -26,6 +26,7 @@ public class BoardDTO {
 	private int favoriteCnt;
 	private String status;
 	private String disabled;
+	private String publishDate;
 
 	private List<MultipartFile> files;
 	private List<ImageFileDTO> imageFileDTOList;

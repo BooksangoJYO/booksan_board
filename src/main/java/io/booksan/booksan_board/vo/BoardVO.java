@@ -24,4 +24,5 @@ public class BoardVO {
     private int favoriteCnt;
     private String status;
     private String disabled;
+    private String publishDate;
 }

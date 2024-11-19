@@ -36,8 +36,8 @@
 
 	<!-- 게시물 등록 -->
 	<insert id="insertBoard" useGeneratedKeys="true" keyProperty="dealId">
-		insert into DEALS_BOARD (title, content, books_category_id, isbn, price,email)
-		values (#{title},#{content},#{booksCategoryId},#{isbn},#{price},#{email})
+		insert into DEALS_BOARD (title, content, books_category_id, isbn, price,email,publish_Date)
+		values (#{title},#{content},#{booksCategoryId},#{isbn},#{price},#{email},#{publishDate})
 	</insert>
 	
 	<!-- 게시물 단건조회 -->
