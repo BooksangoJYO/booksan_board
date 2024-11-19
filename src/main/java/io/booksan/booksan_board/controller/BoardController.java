@@ -82,12 +82,13 @@ public class BoardController {
     //게시물 단건조회
     @GetMapping("/read/{dealId}")
     public ResponseEntity<?> readBoard(@PathVariable("dealId") int dealId, @RequestHeader Map<String, String> request) {
-        log.info(request.toString());
         String token = request.get("accesstoken");
-
+        Map<String, Object> loginData = null;
+        if (token != null) {
+            loginData = tokenChecker.tokenCheck(token);
+        }
         //단건조회 결과 boardVO에 담음
-        BoardDTO boardDTO = boardService.readBoardById(dealId);
-
+        BoardDTO boardDTO = boardService.readBoardById(dealId, loginData);
         //응답 데이터 저장할 Map
         Map<String, Object> response = new HashMap<>();
 
@@ -96,10 +97,9 @@ public class BoardController {
             response.put("status", "success");
             response.put("data", boardDTO);
             response.put("bookData", bookInfo);
-            if (token != null) {
-                Map<String, Object> result = tokenChecker.tokenCheck(token);
-                if ((Boolean) result.get("status")) {
-                    if (result.get("email").equals(boardDTO.getEmail())) {
+            if (loginData != null) {
+                if ((Boolean) loginData.get("status")) {
+                    if (loginData.get("email").equals(boardDTO.getEmail())) {
                         response.put("isWriter", true);
                         return ResponseEntity.ok(response);
                     }
@@ -149,10 +149,8 @@ public class BoardController {
 
         //로그인한 유저가 글작성자인지 확인하고 맞으면 수정 요청
         if (boardDTO.getEmail().equals(email)) {
-
-            int result = boardService.updateBoard(mapperUtil.map(boardDTO, BoardVO.class));
-
-            if (result == 1) {
+			int result = boardService.updateBoard(boardDTO);
+			if (result == 1) {
                 response.put("status", "success");
                 response.put("message", "게시물 수정 성공");
                 return ResponseEntity.ok(response);
@@ -278,5 +276,46 @@ public class BoardController {
             response.put("message", "서버 오류 발생: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @GetMapping("mypage/list")
+    public ResponseEntity<?> getBoardMypageList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+        pageRequestDTO.setEmail(userDetails.getUsername());
+
+        log.info("Requested page: " + pageRequestDTO.getPage());
+        log.info("Page size: " + pageRequestDTO.getSize());
+        log.info("Skip value: " + pageRequestDTO.getSkip());
+
+        PageResponseDTO<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);
+
+        log.info("Response page: " + boardList.getPage());
+
+        //응답데이터 저장할 Map
+        Map<String, Object> response = new HashMap<>();
+
+        //게시물이 있는 경우
+        if (!boardList.getDtoList().isEmpty()) {
+            response.put("status", "success");
+            response.put("data", boardList);
+            return ResponseEntity.ok(response);
+        } else {
+            //게시물이 없는 경우
+            response.put("status", "fail");
+            response.put("message", "게시물이 없습니다.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        }
+    }
+
+    @GetMapping("/recommend/books")
+    public ResponseEntity<?> getRecommendBooks(@AuthenticationPrincipal UserDetails userDetails) {
+      // if(userDetails == null) {
+        log.info("**********recommendForAll:::"+boardService.recommendBooksForAllUsers().toString());
+        return ResponseEntity.ok(boardService.recommendBooksForAllUsers());
+      // }
+
+      // if (userDetails != null) {
+      // 	String email = userDetails.getUsername();
+      // 	boardService.recommendBooksForUser(email);		//회원일 경우 회원 추천 도서 조회
+      // }
     }
 }

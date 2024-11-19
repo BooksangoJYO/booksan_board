@@ -10,8 +10,8 @@
 
 	<!-- 책정보 등록(게시물 등록시) -->
 	<insert id="insertBookInfo" parameterType="io.booksan.booksan_board.vo.BookVO">
-		insert into BOOKS_INFO(isbn, book_title, book_writer, book_publisher)
-		values(#{isbn}, #{bookTitle}, #{bookWriter}, #{bookPublisher})
+		insert into BOOKS_INFO(isbn, book_title, book_writer, book_publisher, book_image_url)
+		values(#{isbn}, #{bookTitle}, #{bookWriter}, #{bookPublisher}, #{bookImageUrl})
 	</insert>
 	
 	<!-- isbn 존재여부 확인(존재하는 isbn인 경우 책등록 x) -->
@@ -73,4 +73,46 @@
 		AND fb.disabled = 'N'
 	</select>
 	
+
+	<!-- 조회수 기준 상위 4권 -->
+	<select id="getMostViewedBooks">
+	    SELECT 
+	        isbn,
+	        book_title as bookTitle,
+	        book_writer as bookWriter,
+	        book_publisher as bookPublisher,
+	        book_image_url as bookImageUrl,
+	        book_read_count as bookReadCount
+	    FROM BOOKS_INFO 
+	    WHERE book_read_count > 0
+	    ORDER BY book_read_count DESC
+	    LIMIT 4
+	</select>
+	
+	<!-- 랜덤 4권 -->
+	<select id="getRandomBooks">
+	    SELECT 
+	        isbn,
+	        book_title as bookTitle,
+	        book_writer as bookWriter,
+	        book_publisher as bookPublisher,
+	        book_image_url as bookImageUrl
+	    FROM BOOKS_INFO
+	    WHERE isbn IN (
+	        SELECT DISTINCT isbn
+	        FROM DEALS_BOARD
+	        WHERE disabled = 'N'
+	    )
+	    ORDER BY RAND()
+	    LIMIT 4
+	</select>
+
+	
+
+	<update id="updateBookReadCount">
+		update BOOKS_INFO
+			SET book_read_count = book_read_count+1
+			where isbn = #{isbn}
+	</update>
+
 </mapper>

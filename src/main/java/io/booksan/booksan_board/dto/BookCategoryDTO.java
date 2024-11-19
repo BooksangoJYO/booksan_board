@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class BookCategoryDTO {
 	private int booksCategoryId;
 	private String booksCategoryName;
+	private int dealsViewCountSum;
 }

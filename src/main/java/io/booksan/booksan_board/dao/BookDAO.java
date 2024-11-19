@@ -5,6 +5,8 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import io.booksan.booksan_board.dto.BookCommentDTO;
+import io.booksan.booksan_board.dto.BookDTO;
+import io.booksan.booksan_board.dto.BookInfoDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.vo.BookCategoryVO;
 import io.booksan.booksan_board.vo.BookCommentVO;
@@ -40,4 +42,11 @@ public interface BookDAO {
     int getFavoriteBookCount(PageRequestDTO pageRequestDTO);
 
     int insertFavoriteBook(FavoriteBookVO favoriteBooKVO);
+
+    // 조회수 많은 책 4권 가져오기
+	List<BookDTO> getMostViewedBooks();
+	// 랜덤 책 4권 가져오기
+	List<BookDTO> getRandomBooks();
+  void updateBookReadCount(String isbn);
+
 }

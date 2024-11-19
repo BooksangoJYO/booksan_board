@@ -142,7 +142,7 @@ public class BookService {
                     itemNode,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, BookInfoDTO.class)
             );
-
+            bookDAO.updateBookReadCount(isbn);
             return bookList.get(0);
         } catch (Exception e) {
             throw new RuntimeException("네이버 API로부터 파싱 실패", e);
@@ -235,5 +235,16 @@ public class BookService {
 		
 		return Math.max(depreciatedPrice, minimumPrice); //최소 가격 보장		
 	}
+
+    public List<BookDTO> getRecommendedBooks() {
+        List<BookDTO> recommended = bookDAO.getMostViewedBooks();
+        
+        if(recommended == null || recommended.isEmpty()) {
+            recommended = bookDAO.getRandomBooks();
+        }
+        
+        return recommended;
+    }
+
 
 }

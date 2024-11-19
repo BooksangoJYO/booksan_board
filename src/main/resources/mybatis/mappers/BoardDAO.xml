@@ -27,6 +27,9 @@
 		    <if test="availableOnly != null and availableOnly">
 		        AND d.status = 'N' <!-- 'N'은 판매 중 상태 -->
 		    </if>
+		    <if test="email != null and email != ''">
+		        AND d.email = #{email} <!-- 'N'은 판매 중 상태 -->
+			  </if>
 		    <if test="isbn != null and isbn != ''">
 		        AND d.isbn = #{isbn} <!-- 'N'은 판매 중 상태 -->
 		    </if>
@@ -59,7 +62,6 @@
 		set title=#{title},
 			content=#{content},
 			books_category_id=#{booksCategoryId},
-			isbn=#{isbn},
 			price=#{price},		
 			updated_datetime=now(),
 			status=#{status}
@@ -165,5 +167,25 @@
 		where isbn = #{isbn}
 		AND DISABLED = 'N'
 	</select>
-	
+  
+  <insert id="insertBoardReadLog">
+		INSERT INTO DEALS_READ_LOG	(email , deal_id,isbn)
+        VALUES (#{email},#{dealId},#{isbn})
+	</insert>
+
+	<select id="getTop3Categories">
+		SELECT bc.books_category_id, bc.books_category_name, SUM(db.view_cnt) AS deals_view_count_sum
+		FROM DEALS_BOARD db
+			JOIN BOOKS_CATEGORIES bc ON db.books_category_id = bc.books_category_id
+		GROUP BY bc.books_category_id
+		ORDER BY SUM(db.view_cnt) DESC
+		LIMIT 3
+	</select>
+
+	<select id="getDealsInCategory">
+		SELECT * FROM DEALS_BOARD
+		WHERE books_category_id = #{booksCategoryId}
+		AND disabled = 'N' AND status = 'Y'
+		AND isbn is NOT NULL
+	</select>
 </mapper>
