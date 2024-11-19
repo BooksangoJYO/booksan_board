@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class BookCategoryVO {
 	private int booksCategoryId;
 	private String booksCategoryName;
-	
+	private int dealsViewCountSum;
 }

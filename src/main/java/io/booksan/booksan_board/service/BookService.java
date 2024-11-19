@@ -142,7 +142,7 @@ public class BookService {
                     itemNode,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, BookInfoDTO.class)
             );
-
+            bookDAO.updateBookReadCount(isbn);
             return bookList.get(0);
         } catch (Exception e) {
             throw new RuntimeException("네이버 API로부터 파싱 실패", e);

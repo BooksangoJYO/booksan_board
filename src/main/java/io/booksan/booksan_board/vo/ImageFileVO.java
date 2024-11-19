@@ -1,6 +1,7 @@
 package io.booksan.booksan_board.vo;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class ImageFileVO {
     private int imgSize;
     private String imgType;
     private Date uploadDate;
+    private List<Integer> imgIds;
 }

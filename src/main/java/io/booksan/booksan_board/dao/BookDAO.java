@@ -42,8 +42,11 @@ public interface BookDAO {
     int getFavoriteBookCount(PageRequestDTO pageRequestDTO);
 
     int insertFavoriteBook(FavoriteBookVO favoriteBooKVO);
+
     // 조회수 많은 책 4권 가져오기
 	List<BookDTO> getMostViewedBooks();
 	// 랜덤 책 4권 가져오기
 	List<BookDTO> getRandomBooks();
+  void updateBookReadCount(String isbn);
+
 }
