@@ -167,6 +167,11 @@
 		where isbn = #{isbn}
 		AND DISABLED = 'N'
 	</select>
+  
+  <insert id="insertBoardReadLog">
+		INSERT INTO DEALS_READ_LOG	(email , deal_id,isbn)
+        VALUES (#{email},#{dealId},#{isbn})
+	</insert>
 
 	<select id="getTop3Categories">
 		SELECT bc.books_category_id, bc.books_category_name, SUM(db.view_cnt) AS deals_view_count_sum

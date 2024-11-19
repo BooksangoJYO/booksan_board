@@ -195,7 +195,7 @@ public class BookController {
             //북마크 내역이 없을경우
             response.put("status", "fail");
             response.put("message", "북마크 내역이 없습니다.");
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+            return ResponseEntity.ok(response);
         }
     }
 

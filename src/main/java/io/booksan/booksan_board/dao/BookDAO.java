@@ -40,4 +40,6 @@ public interface BookDAO {
     int getFavoriteBookCount(PageRequestDTO pageRequestDTO);
 
     int insertFavoriteBook(FavoriteBookVO favoriteBooKVO);
+
+    public void updateBookReadCount(String isbn);
 }

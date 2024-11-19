@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,7 @@ import io.booksan.booksan_board.dto.RequestDTO;
 import io.booksan.booksan_board.entity.BoardReservationEntity;
 import io.booksan.booksan_board.entity.BookAlertEntity;
 import io.booksan.booksan_board.util.MapperUtil;
+import io.booksan.booksan_board.vo.BoardReadLogVO;
 import io.booksan.booksan_board.vo.BoardVO;
 import io.booksan.booksan_board.vo.FavoriteVO;
 import io.booksan.booksan_board.vo.ImageFileVO;
@@ -107,20 +109,30 @@ public class BoardService {
     }
 
     //게시물 단건 조회
-    public BoardDTO readBoardById(int dealId) {
+    public BoardDTO readBoardById(int dealId, Map<String, Object> loginData) {
         BoardVO boardVO = boardDAO.readBoardById(dealId);
-        BoardDTO boardDTO = mapperUtil.map(boardVO, BoardDTO.class);
-        if (boardDTO != null) {
-            boardDTO.setImageFileDTOList(
-                    imageFileDAO.getImageFileList(dealId)
-                            .stream()
-                            .map(imageFileVO -> mapperUtil.map(imageFileVO, ImageFileDTO.class))
-                            .collect(Collectors.toList())
-            );
+        if (boardVO != null) {
+            BoardDTO boardDTO = mapperUtil.map(boardVO, BoardDTO.class);
+            if (boardDTO != null) {
+                boardDTO.setImageFileDTOList(
+                        imageFileDAO.getImageFileList(dealId)
+                                .stream()
+                                .map(imageFileVO -> mapperUtil.map(imageFileVO, ImageFileDTO.class))
+                                .collect(Collectors.toList())
+                );
 
+            }
+            //db에 로그 저장
+            BoardReadLogVO boardReadLog = new BoardReadLogVO();
+            boardReadLog.setDealId(boardVO.getDealId());
+            boardReadLog.setIsbn(boardVO.getIsbn());
+            if (loginData != null && (Boolean) loginData.get("status")) {
+                boardReadLog.setEmail((String) loginData.get("email"));
+            }
+            boardDAO.insertBoardReadLog(boardReadLog);
+            return boardDTO;
         }
-
-        return boardDTO;
+        return null;
     }
 
     //게시물 목록
