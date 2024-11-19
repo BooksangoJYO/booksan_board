@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import io.booksan.booksan_board.dto.BookCategoryDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.entity.BoardReservationEntity;
 import io.booksan.booksan_board.entity.BookAlertEntity;
 import io.booksan.booksan_board.vo.BoardReadLogVO;
 import io.booksan.booksan_board.vo.BoardReservationVO;
 import io.booksan.booksan_board.vo.BoardVO;
+import io.booksan.booksan_board.vo.BookCategoryVO;
 import io.booksan.booksan_board.vo.FavoriteVO;
 
 @Mapper
@@ -53,5 +55,8 @@ public interface BoardDAO {
     public List<String> getReservationPeople(String isbn);
 
     public void insertBoardReadLog(BoardReadLogVO boardReadLog);
+
+    List<BookCategoryVO> getTop3Categories();
+    List<BoardVO> getDealsInCategory(int categoryId);
 
 }

@@ -305,4 +305,17 @@ public class BoardController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
         }
     }
+
+    @GetMapping("/recommend/books")
+    public ResponseEntity<?> getRecommendBooks(@AuthenticationPrincipal UserDetails userDetails) {
+      // if(userDetails == null) {
+        log.info("**********recommendForAll:::"+boardService.recommendBooksForAllUsers().toString());
+        return ResponseEntity.ok(boardService.recommendBooksForAllUsers());
+      // }
+
+      // if (userDetails != null) {
+      // 	String email = userDetails.getUsername();
+      // 	boardService.recommendBooksForUser(email);		//회원일 경우 회원 추천 도서 조회
+      // }
+    }
 }

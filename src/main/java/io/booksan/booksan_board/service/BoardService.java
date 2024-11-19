@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,6 +20,7 @@ import io.booksan.booksan_board.dao.BoardDAO;
 import io.booksan.booksan_board.dao.ImageFileDAO;
 import io.booksan.booksan_board.dto.BoardDTO;
 import io.booksan.booksan_board.dto.BoardReservationDTO;
+import io.booksan.booksan_board.dto.BookCategoryDTO;
 import io.booksan.booksan_board.dto.ImageFileDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.dto.PageResponseDTO;
@@ -159,7 +161,7 @@ public class BoardService {
 		
 		ImageFileVO imageFileVO = new ImageFileVO();
 		imageFileVO.setImgIds(boardDTO.getExistingImageIds());
-
+		
 		final int result = boardDAO.updateBoard(boardVO);
 		try {
 			if (boardDTO.getFiles() != null) {
@@ -235,5 +237,37 @@ public class BoardService {
 
         return boardDAO.updateStatus(boardVO);
     }
+
+	public List<String> recommendBooksForAllUsers() {
+		// 인기 top3 카테고리 찾기
+		List<BookCategoryDTO> top3Categories = boardDAO.getTop3Categories().stream().map(category -> mapperUtil.map(category, BookCategoryDTO.class)).toList();
+		log.info("************top3Categories : "+top3Categories.toString());
+		// 카테고리 별 랜덤 도서 1개 (반복문) -> 각각 리스트애 매핑
+		List<String> recommendedBooksIsbn = new ArrayList<>();
+		Random random = new Random();
+		for (BookCategoryDTO category : top3Categories) {
+			log.info("************categoryID : "+category.getBooksCategoryId());
+			List<BoardVO> dealsInCategory = boardDAO.getDealsInCategory(category.getBooksCategoryId());
+			log.info("*******dealsInCategory : "+dealsInCategory);
+			if (!dealsInCategory.isEmpty()) {
+				int randomIndex = random.nextInt(dealsInCategory.size());
+				BoardVO randomDeal = dealsInCategory.get(randomIndex);	// 카테고리에 해당하는 deal 중 randomindex에 해당하는 도서 가져오기
+				String randomDealIsbn = randomDeal.getIsbn();
+				log.info("*******recommendedDealIsbn : "+randomDealIsbn);
+				recommendedBooksIsbn.add(randomDealIsbn);
+				log.info("*******recommendedBooksIsbn : "+recommendedBooksIsbn.toString());
+			}
+		}
+		// 리턴
+		return recommendedBooksIsbn;
+	}
+
+	// public List<BoardDTO> recommendBooksForUsers(String email) {
+	// 	// 유저 선호 카테고리 1~2개 찾기
+	// 	// 카테고리 1개 -> 카테고리에서 랜덤 도서 3개
+	// 	// 카테고리 2개 -> 1순위 카테고리에서 랜덤 도서 2개, 2순위 카테고리에서 랜덤 도서 1개
+	// 	// 리스트에 매핑
+	// 	// 리턴
+	// }
 
 }
