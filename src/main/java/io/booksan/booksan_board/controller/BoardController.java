@@ -245,7 +245,7 @@ public class BoardController {
             response.setContentType(imageFileDTO.getImgType());
             response.setContentLength(imageFileDTO.getImgSize());
 
-            InputStream is = new FileInputStream("/Users/user/" + imageFileDTO.getImgUuid());		// 파일 입력 스트림에 파일 데이터 전송
+            InputStream is = new FileInputStream("/Users/Public/download/" + imageFileDTO.getImgUuid());		// 파일 입력 스트림에 파일 데이터 전송
             is.transferTo(response.getOutputStream());		// 파일 출력 스트림에 파일 데이터 전송
             is.close();
 
