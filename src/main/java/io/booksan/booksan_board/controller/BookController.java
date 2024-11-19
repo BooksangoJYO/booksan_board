@@ -1,5 +1,6 @@
 package io.booksan.booksan_board.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import io.booksan.booksan_board.dto.BookCategoryDTO;
 import io.booksan.booksan_board.dto.BookCommentDTO;
 import io.booksan.booksan_board.dto.BookDTO;
 import io.booksan.booksan_board.dto.BookInfoDTO;
+import io.booksan.booksan_board.dto.BookRecommendPriceDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.dto.PageResponseDTO;
 import io.booksan.booksan_board.service.BookService;
@@ -214,7 +216,36 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    //가격 추천
+    @PostMapping("/recommendPrice")
+    public ResponseEntity<?> getRecommendPrice(@RequestBody BookRecommendPriceDTO bookRecommendPriceDTO){
+    	//publishDate가 Date 타입인 경우 이를 String으로 변환
+    	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    	String publishDate = dateFormat.format(bookRecommendPriceDTO.getPublishDate());
+    	
+    	String isbn = (String) bookRecommendPriceDTO.getIsbn();    	
+    	double originalPrice = Double.parseDouble(bookRecommendPriceDTO.getBookOriginalPrice());
+    	
+    	//출판 연도와 연 추출
+    	int publishYear = Integer.parseInt(publishDate.split("-")[0]);
+    	int publishMonth = Integer.parseInt(publishDate.split("-")[1]);
+    	
+    	
+    	//추천 가격 계산
+    	double recommendedPrice = bookService.getRecommendPrice(originalPrice, publishYear, publishMonth);
+    	
+    	recommendedPrice = Math.round(recommendedPrice);
+    	
+    	//응답 데이터 생성
+    	Map<String, Object> response = new HashMap<>();
+    	response.put("status", "success");
+    	response.put("recommendedPrice", recommendedPrice);
+    	
+    	return ResponseEntity.ok(response);
+    }
     
+
     @GetMapping("/recommended")
     public ResponseEntity<?> getRecommendedBooks() {
        Map<String, Object> response = new HashMap<>();
@@ -233,5 +264,6 @@ public class BookController {
            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
        }
     }
+
 
 }

@@ -58,6 +58,7 @@ public class BoardService {
         boardVO.setBooksCategoryId(requestDTO.getBooksCategoryId());
         boardVO.setPrice(requestDTO.getPrice());
         boardVO.setEmail(email);
+        boardVO.setPublishDate(requestDTO.getPublishDate());
         if (requestDTO.getIsbn() != null) {
             boardVO.setIsbn(requestDTO.getIsbn());
         }

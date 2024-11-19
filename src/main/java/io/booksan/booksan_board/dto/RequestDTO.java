@@ -1,5 +1,6 @@
 package io.booksan.booksan_board.dto;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +20,7 @@ public class RequestDTO {
     private int booksCategoryId;
     private int price;
     private String email;
+    private String publishDate;
     private List<MultipartFile> files;
 
     //책 정보
