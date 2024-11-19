@@ -214,5 +214,24 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+    
+    @GetMapping("/recommended")
+    public ResponseEntity<?> getRecommendedBooks() {
+       Map<String, Object> response = new HashMap<>();
+       
+       try {
+           // bookreadcount > 0 인 책이 있는지 확인하고 있으면 상위 4권, 없으면 랜덤 4권
+           List<BookDTO> recommendedBooks = bookService.getRecommendedBooks();
+           
+           response.put("status", "success");
+           response.put("data", recommendedBooks);
+           return ResponseEntity.ok(response);
+           
+       } catch(Exception e) {
+           response.put("status", "fail");
+           response.put("message", "서버 오류가 발생했습니다.");
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+       }
+    }
 
 }

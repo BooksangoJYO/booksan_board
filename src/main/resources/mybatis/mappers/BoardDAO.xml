@@ -29,6 +29,7 @@
 		    </if>
 		    <if test="email != null and email != ''">
 		        AND d.email = #{email} <!-- 'N'은 판매 중 상태 -->
+		    </if>
 		    <if test="isbn != null and isbn != ''">
 		        AND d.isbn = #{isbn} <!-- 'N'은 판매 중 상태 -->
 		    </if>
