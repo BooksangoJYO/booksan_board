@@ -16,6 +16,6 @@ public class BoardReservationDTO {
     private String bookTitle;
     private String bookImageUrl;
     private int dealId;
-    private int title;
+    private String title;
     private Date writeTime;
 }

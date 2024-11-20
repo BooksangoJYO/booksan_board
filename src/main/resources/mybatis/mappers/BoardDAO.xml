@@ -45,8 +45,22 @@
 	
 	<!-- 게시물 단건조회 -->
 	<select id="readBoardById">
-		select * from DEALS_BOARD where deal_id=#{dealId} and disabled='N'
+		SELECT 
+			b.*,
+			CASE WHEN f.favorite_id IS NOT NULL THEN 'Y' ELSE 'N' END as is_favorited
+		FROM 
+			DEALS_BOARD b
+			LEFT OUTER JOIN FAVORITES_DEALS f 
+				ON b.deal_id = f.deal_id 
+				AND f.disabled = 'N'
+				<if test="email != null and email != ''">
+					AND f.email = #{email}
+				</if>
+		WHERE 
+			b.deal_id = #{dealId} 
+			AND b.disabled = 'N'
 	</select>
+
 
 	<!-- 게시물 목록 -->
 	<select id="getBoardList">
@@ -188,4 +202,10 @@
 		AND disabled = 'N' AND status = 'Y'
 		AND isbn is NOT NULL
 	</select>
+
+	<update id="updateDealReadCount">
+		update DEALS_BOARD
+			SET view_cnt= view_cnt+1
+			where deal_id = #{dealId}
+	</update>
 </mapper>

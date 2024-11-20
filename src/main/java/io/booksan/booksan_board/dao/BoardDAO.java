@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import io.booksan.booksan_board.dto.BookCategoryDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.entity.BoardReservationEntity;
 import io.booksan.booksan_board.entity.BookAlertEntity;
@@ -21,7 +20,7 @@ public interface BoardDAO {
     int insertBoard(BoardVO boardVO);
 
     //게시물 단건조회
-    BoardVO readBoardById(int dealId);
+    BoardVO readBoardById(FavoriteVO favoriteVO);
 
     //게시물 목록
     List<BoardVO> getBoardList(PageRequestDTO pageRequestDTO);
@@ -57,6 +56,8 @@ public interface BoardDAO {
     public void insertBoardReadLog(BoardReadLogVO boardReadLog);
 
     List<BookCategoryVO> getTop3Categories();
+
     List<BoardVO> getDealsInCategory(int categoryId);
 
+    int updateDealReadCount(int dealId);
 }

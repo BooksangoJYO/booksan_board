@@ -212,39 +212,44 @@ public class BookService {
     }
 
     public int insertFavoriteBook(String isbn, String email) {
+        int result = isISBNExists(isbn);
+        if (result == 0) {
+            BookInfoDTO bookInfo = searchBook(isbn);
+            BookVO bookVO = new BookVO(bookInfo.getIsbn(), bookInfo.getTitle(), bookInfo.getAuthor(), bookInfo.getPublisher(), bookInfo.getImage());
+            bookDAO.insertBookInfo(bookVO);
+        }
         return bookDAO.insertFavoriteBook(new FavoriteBookVO(isbn, email));
     }
 
-	public double getRecommendPrice(double originalPrice, int publishYear, int publishMonth) {
-		int currentYear = java.time.Year.now().getValue();
-		int currentMonth = java.time.LocalDate.now().getMonthValue();
-		
-		//경과 월 계산
-		int yearsSincePublish = currentYear - publishYear; //년도 차이
-		int monthsSincePublish = (yearsSincePublish *12) + (currentMonth - publishMonth);
-		
-		//감가 계산
-		double depreciationRatePerMonth = 0.008; // 매월 10% 감소
-		double minimumPriceRate = 0.5; // 최소 50% 보장
-		
-		//감가 가격 적용
-		double depreciatedPrice = originalPrice * Math.pow((1-depreciationRatePerMonth), monthsSincePublish);
-		
-		//최소 거래가 보장
-		double minimumPrice = originalPrice * minimumPriceRate;
-		
-		return Math.max(depreciatedPrice, minimumPrice); //최소 가격 보장		
-	}
+    public double getRecommendPrice(double originalPrice, int publishYear, int publishMonth) {
+        int currentYear = java.time.Year.now().getValue();
+        int currentMonth = java.time.LocalDate.now().getMonthValue();
+
+        //경과 월 계산
+        int yearsSincePublish = currentYear - publishYear; //년도 차이
+        int monthsSincePublish = (yearsSincePublish * 12) + (currentMonth - publishMonth);
+
+        //감가 계산
+        double depreciationRatePerMonth = 0.008; // 매년 10% 감소
+        double minimumPriceRate = 0.5; // 최소 50% 보장
+
+        //감가 가격 적용
+        double depreciatedPrice = originalPrice * Math.pow((1 - depreciationRatePerMonth), monthsSincePublish);
+
+        //최소 거래가 보장
+        double minimumPrice = originalPrice * minimumPriceRate;
+
+        return Math.max(depreciatedPrice, minimumPrice); //최소 가격 보장		
+    }
 
     public List<BookDTO> getRecommendedBooks() {
         List<BookDTO> recommended = bookDAO.getMostViewedBooks();
-        
-        if(recommended == null || recommended.isEmpty()) {
+
+        if (recommended == null || recommended.isEmpty()) {
             recommended = bookDAO.getRandomBooks();
         }
-        
+
         return recommended;
     }
-
 
 }

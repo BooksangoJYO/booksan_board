@@ -11,4 +11,8 @@ public class FavoriteVO {
 
     private int dealId;
     private String email;
+
+    public FavoriteVO(int dealId) {
+        this.dealId = dealId;
+    }
 }
