@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.Mapper;
 
 import io.booksan.booksan_board.dto.BookCommentDTO;
 import io.booksan.booksan_board.dto.BookDTO;
-import io.booksan.booksan_board.dto.BookInfoDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.vo.BookCategoryVO;
 import io.booksan.booksan_board.vo.BookCommentVO;
@@ -20,7 +19,7 @@ public interface BookDAO {
     List<BookCategoryVO> getCategories();
 
     //게시물 등록시 책정보 등록
-    int insertBookInfo(BookVO bookInfoVO);
+    int insertBookInfo(BookVO bookVO);
 
     //isbn이 존재하는지 여부(책정보 등록시 존재하면 미등록, 존재하지않으면 등록)
     int isISBNExists(String isbn);
@@ -44,9 +43,11 @@ public interface BookDAO {
     int insertFavoriteBook(FavoriteBookVO favoriteBooKVO);
 
     // 조회수 많은 책 4권 가져오기
-	List<BookDTO> getMostViewedBooks();
-	// 랜덤 책 4권 가져오기
-	List<BookDTO> getRandomBooks();
-  void updateBookReadCount(String isbn);
+    List<BookDTO> getMostViewedBooks();
+    // 랜덤 책 4권 가져오기
+
+    List<BookDTO> getRandomBooks();
+
+    void updateBookReadCount(String isbn);
 
 }

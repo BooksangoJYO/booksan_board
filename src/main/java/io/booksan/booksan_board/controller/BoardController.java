@@ -84,8 +84,10 @@ public class BoardController {
     public ResponseEntity<?> readBoard(@PathVariable("dealId") int dealId, @RequestHeader Map<String, String> request) {
         String token = request.get("accesstoken");
         Map<String, Object> loginData = null;
+        log.info(token);
         if (token != null) {
             loginData = tokenChecker.tokenCheck(token);
+            log.info(loginData.toString());
         }
         //단건조회 결과 boardVO에 담음
         BoardDTO boardDTO = boardService.readBoardById(dealId, loginData);
@@ -149,8 +151,8 @@ public class BoardController {
 
         //로그인한 유저가 글작성자인지 확인하고 맞으면 수정 요청
         if (boardDTO.getEmail().equals(email)) {
-			int result = boardService.updateBoard(boardDTO);
-			if (result == 1) {
+            int result = boardService.updateBoard(boardDTO);
+            if (result == 1) {
                 response.put("status", "success");
                 response.put("message", "게시물 수정 성공");
                 return ResponseEntity.ok(response);
@@ -308,14 +310,14 @@ public class BoardController {
 
     @GetMapping("/recommend/books")
     public ResponseEntity<?> getRecommendBooks(@AuthenticationPrincipal UserDetails userDetails) {
-      // if(userDetails == null) {
-        log.info("**********recommendForAll:::"+boardService.recommendBooksForAllUsers().toString());
+        // if(userDetails == null) {
+        log.info("**********recommendForAll:::" + boardService.recommendBooksForAllUsers().toString());
         return ResponseEntity.ok(boardService.recommendBooksForAllUsers());
-      // }
+        // }
 
-      // if (userDetails != null) {
-      // 	String email = userDetails.getUsername();
-      // 	boardService.recommendBooksForUser(email);		//회원일 경우 회원 추천 도서 조회
-      // }
+        // if (userDetails != null) {
+        // 	String email = userDetails.getUsername();
+        // 	boardService.recommendBooksForUser(email);		//회원일 경우 회원 추천 도서 조회
+        // }
     }
 }
