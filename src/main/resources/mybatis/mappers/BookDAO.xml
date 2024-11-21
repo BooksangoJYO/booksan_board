@@ -74,7 +74,7 @@
 	</select>
 	
 
-	<!-- 조회수 기준 상위 4권 -->
+	<!-- 조회수 기준 상위 3권 -->
 	<select id="getMostViewedBooks">
 	    SELECT 
 	        isbn,
@@ -89,7 +89,7 @@
 	    LIMIT 3
 	</select>
 	
-	<!-- 랜덤 4권 -->
+	<!-- 랜덤 3권 -->
 	<select id="getRandomBooks">
 	    SELECT 
 	        isbn,
