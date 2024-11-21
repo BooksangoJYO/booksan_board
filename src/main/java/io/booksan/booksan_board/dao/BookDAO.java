@@ -50,4 +50,6 @@ public interface BookDAO {
 
     void updateBookReadCount(String isbn);
 
+    int bookMarkedBookCheck(BookMarkedBookVO bookMarkedBookVO);
+
 }
