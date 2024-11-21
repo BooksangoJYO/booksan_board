@@ -255,4 +255,8 @@ public class BookService {
         return recommended;
     }
 
+    public boolean bookMarkBookCheck(BookMarkedBookVO bookMarkedBookVO) {
+        return bookDAO.bookMarkedBookCheck(bookMarkedBookVO) == 1;
+    }
+
 }

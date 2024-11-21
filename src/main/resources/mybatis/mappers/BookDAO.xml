@@ -107,7 +107,10 @@
 	    LIMIT 4
 	</select>
 
-	
+	<select id="bookMarkedBookCheck">
+		select count(*) from BOOKMARKS_BOOKS where isbn=#{isbn} and email = #{email} and disabled='N'
+	</select>
+
 
 	<update id="updateBookReadCount">
 		update BOOKS_INFO

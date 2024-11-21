@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,14 +28,19 @@ import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.dto.PageResponseDTO;
 import io.booksan.booksan_board.service.BookService;
 import io.booksan.booksan_board.util.MapperUtil;
+import io.booksan.booksan_board.util.TokenChecker;
 import io.booksan.booksan_board.vo.BookCommentVO;
+import io.booksan.booksan_board.vo.BookMarkedBookVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/books")
+@Slf4j
 public class BookController {
 
+    private final TokenChecker tokenChecker;
     private final MapperUtil mapperUtil;
     private final BookService bookService;
 
@@ -58,9 +64,20 @@ public class BookController {
 
     //게시물 조회페이지에서 isbn으로 책정보 단건조회(네이버 검색 api)
     @GetMapping("/search/{isbn}")
-    public ResponseEntity<?> searchBook(@PathVariable("isbn") String isbn) {
-        BookInfoDTO bookInfo = bookService.searchBook(isbn);
+    public ResponseEntity<?> searchBook(@PathVariable("isbn") String isbn, @RequestHeader Map<String, String> request) {
+        String token = request.get("accesstoken");
+        Map<String, Object> loginData = null;
         Map<String, Object> response = new HashMap<>();
+        if (token != null) {
+            loginData = tokenChecker.tokenCheck(token);
+            if (loginData != null && (Boolean) loginData.get("status")) {
+                boolean isBookMarkedBook = bookService.bookMarkBookCheck(new BookMarkedBookVO(isbn, (String) loginData.get("email")));
+                response.put("isBookMarkedBook", isBookMarkedBook);
+            }
+        } else {
+            response.put("isBookMarkedBook", false);
+        }
+        BookInfoDTO bookInfo = bookService.searchBook(isbn);
         response.put("status", "success");
         response.put("bookInfo", bookInfo);
 
