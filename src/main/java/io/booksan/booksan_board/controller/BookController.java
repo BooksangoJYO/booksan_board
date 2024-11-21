@@ -180,11 +180,11 @@ public class BookController {
 
     }
 
-    @GetMapping("favorite/book/list")
-    public ResponseEntity<?> getFavoriteBookList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("bookMark/book/list")
+    public ResponseEntity<?> getBookMarkBookList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
         pageRequestDTO.setEmail(userDetails.getUsername());
         //게시물 목록 가져와서 boadList에 담기
-        PageResponseDTO<BookDTO> bookList = bookService.getFavoriteBookList(pageRequestDTO);
+        PageResponseDTO<BookDTO> bookList = bookService.getBookMarkBookList(pageRequestDTO);
 
         //응답데이터 저장할 Map
         Map<String, Object> response = new HashMap<>();
@@ -201,10 +201,10 @@ public class BookController {
         }
     }
 
-    @PostMapping("favorite/book/insert/{isbn}")
-    public ResponseEntity<?> insertFavoriteBookList(@PathVariable("isbn") String isbn, @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping("bookMark/book/insert/{isbn}")
+    public ResponseEntity<?> insertBookMarkBookList(@PathVariable("isbn") String isbn, @AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();
-        int result = bookService.insertFavoriteBook(isbn, email);
+        int result = bookService.insertBookMarkBook(isbn, email);
         Map<String, Object> response = new HashMap<>();
         if (result == 1 || result == 2) {
             response.put("status", "success");
@@ -219,51 +219,48 @@ public class BookController {
 
     //가격 추천
     @PostMapping("/recommendPrice")
-    public ResponseEntity<?> getRecommendPrice(@RequestBody BookRecommendPriceDTO bookRecommendPriceDTO){
-    	//publishDate가 Date 타입인 경우 이를 String으로 변환
-    	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    	String publishDate = dateFormat.format(bookRecommendPriceDTO.getPublishDate());
-    	
-    	String isbn = (String) bookRecommendPriceDTO.getIsbn();    	
-    	double originalPrice = Double.parseDouble(bookRecommendPriceDTO.getBookOriginalPrice());
-    	
-    	//출판 연도와 연 추출
-    	int publishYear = Integer.parseInt(publishDate.split("-")[0]);
-    	int publishMonth = Integer.parseInt(publishDate.split("-")[1]);
-    	
-    	
-    	//추천 가격 계산
-    	double recommendedPrice = bookService.getRecommendPrice(originalPrice, publishYear, publishMonth);
-    	
-    	recommendedPrice = Math.round(recommendedPrice);
-    	
-    	//응답 데이터 생성
-    	Map<String, Object> response = new HashMap<>();
-    	response.put("status", "success");
-    	response.put("recommendedPrice", recommendedPrice);
-    	
-    	return ResponseEntity.ok(response);
+    public ResponseEntity<?> getRecommendPrice(@RequestBody BookRecommendPriceDTO bookRecommendPriceDTO) {
+        //publishDate가 Date 타입인 경우 이를 String으로 변환
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String publishDate = dateFormat.format(bookRecommendPriceDTO.getPublishDate());
+
+        String isbn = (String) bookRecommendPriceDTO.getIsbn();
+        double originalPrice = Double.parseDouble(bookRecommendPriceDTO.getBookOriginalPrice());
+
+        //출판 연도와 연 추출
+        int publishYear = Integer.parseInt(publishDate.split("-")[0]);
+        int publishMonth = Integer.parseInt(publishDate.split("-")[1]);
+
+        //추천 가격 계산
+        double recommendedPrice = bookService.getRecommendPrice(originalPrice, publishYear, publishMonth);
+
+        recommendedPrice = Math.round(recommendedPrice);
+
+        //응답 데이터 생성
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("recommendedPrice", recommendedPrice);
+
+        return ResponseEntity.ok(response);
     }
-    
 
     @GetMapping("/recommended")
     public ResponseEntity<?> getRecommendedBooks() {
-       Map<String, Object> response = new HashMap<>();
-       
-       try {
-           // bookreadcount > 0 인 책이 있는지 확인하고 있으면 상위 4권, 없으면 랜덤 4권
-           List<BookDTO> recommendedBooks = bookService.getRecommendedBooks();
-           
-           response.put("status", "success");
-           response.put("data", recommendedBooks);
-           return ResponseEntity.ok(response);
-           
-       } catch(Exception e) {
-           response.put("status", "fail");
-           response.put("message", "서버 오류가 발생했습니다.");
-           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-       }
-    }
+        Map<String, Object> response = new HashMap<>();
 
+        try {
+            // bookreadcount > 0 인 책이 있는지 확인하고 있으면 상위 4권, 없으면 랜덤 4권
+            List<BookDTO> recommendedBooks = bookService.getRecommendedBooks();
+
+            response.put("status", "success");
+            response.put("data", recommendedBooks);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("status", "fail");
+            response.put("message", "서버 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
 }

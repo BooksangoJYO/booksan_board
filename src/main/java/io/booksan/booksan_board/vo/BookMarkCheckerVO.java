@@ -7,12 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class FavoriteVO {
+public class BookMarkCheckerVO {
 
     private int dealId;
-    private String email;
+    private String bookMarkEmail;
 
-    public FavoriteVO(int dealId) {
+    public BookMarkCheckerVO(int dealId) {
         this.dealId = dealId;
     }
 }

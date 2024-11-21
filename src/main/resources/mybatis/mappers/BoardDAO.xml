@@ -5,7 +5,7 @@
 	<sql id="search">
 		<where>			
 			<!-- 항상 적용되는 조건(삭제여부='N') -->
-			disabled ='N'	
+			d.disabled ='N'	
 			
 			<!-- 키워드 조건 -->		
 			<if test="keyword != null and keyword != ''">
@@ -46,40 +46,65 @@
 	<!-- 게시물 단건조회 -->
 	<select id="readBoardById">
 		SELECT 
-			b.*,
-			CASE WHEN f.favorite_id IS NOT NULL THEN 'Y' ELSE 'N' END as is_favorited
+			d.*,
+			CASE 
+				WHEN f.bookmark_id IS NOT NULL 
+					AND f.disabled = 'N'
+					<if test="bookMarkEmail != null and bookMarkEmail != ''">
+						AND f.email = #{bookMarkEmail}
+					</if>
+					<if test="bookMarkEmail == null or bookMarkEmail == ''">
+						AND 1=0  /* 이메일이 없으면 무조건 N 반환 */
+					</if>
+				THEN 'Y'
+				ELSE 'N'
+			END as is_book_marked
 		FROM 
-			DEALS_BOARD b
-			LEFT OUTER JOIN FAVORITES_DEALS f 
-				ON b.deal_id = f.deal_id 
-				AND f.disabled = 'N'
-				<if test="email != null and email != ''">
-					AND f.email = #{email}
-				</if>
+			DEALS_BOARD d
+			LEFT OUTER JOIN BOOKMARKS_DEALS f
+				ON d.deal_id = f.deal_id
 		WHERE 
-			b.deal_id = #{dealId} 
-			AND b.disabled = 'N'
+			d.deal_id = #{dealId}
+			AND d.disabled = 'N'
 	</select>
 
 
 	<!-- 게시물 목록 -->
 	<select id="getBoardList">
-		select * from DEALS_BOARD d join BOOKS_INFO b on d.isbn = b.isbn
+		SELECT 
+			d.*, b.*,
+			CASE 
+				WHEN f.bookmark_id IS NOT NULL 
+					AND f.disabled = 'N'
+					<if test="bookMarkEmail != null and bookMarkEmail != ''">
+						AND f.email = #{bookMarkEmail}
+					</if>
+					<if test="bookMarkEmail == null or bookMarkEmail == ''">
+						AND 1=0  /* 이메일이 없으면 무조건 N 반환 */
+					</if>
+				THEN 'Y'
+				ELSE 'N'
+			END as is_book_marked
+		FROM 
+			DEALS_BOARD d
+			LEFT OUTER JOIN BOOKMARKS_DEALS f 
+				ON d.deal_id = f.deal_id
+			JOIN BOOKS_INFO b ON d.isbn = b.isbn
 		<include refid="search" />
-		order by deal_id DESC 
-		limit #{skip}, #{size}
+		ORDER BY d.deal_id DESC
+		LIMIT #{skip}, #{size}
 	</select>
-	
+
 	<!-- 게시물 수정 -->
 	<update id="updateBoard" parameterType="io.booksan.booksan_board.vo.BoardVO">
 		update DEALS_BOARD
 		set title=#{title},
 			content=#{content},
 			books_category_id=#{booksCategoryId},
-			price=#{price},		
+			price=#{price},
 			updated_datetime=now(),
 			status=#{status}
-		where deal_id=#{dealId}			
+		where deal_id=#{dealId}
 	</update>
 	
 	<!-- 게시물 삭제(상태변경) -->
@@ -91,8 +116,9 @@
 	
 	<!-- 게시물 목록 개수(페이지네이션) -->
 	<select id="getTotalCount">
-		select count(*)		 
+		select count(*)
 		from DEALS_BOARD d join BOOKS_INFO b on d.isbn = b.isbn
+		
 		<include refid="search" />
 	</select>
 	
@@ -100,33 +126,33 @@
 	<update id="updateStatus">
 		update DEALS_BOARD
 		set status=#{status}
-		where deal_id=#{dealId}	
+		where deal_id=#{dealId}
 	</update>
 
-	<insert id="insertFavorite">
-		INSERT INTO FAVORITES_DEALS 
+	<insert id="insertBookMark">
+		INSERT INTO BOOKMARKS_DEALS
 			(email, deal_id, disabled)
-		VALUES 
+		VALUES
 			(#{email}, #{dealId}, 'N')
 		ON DUPLICATE KEY UPDATE
 			disabled = IF(disabled = 'N', 'Y', 'N'),
-			favorite_datetime = NOW()
+			bookmark_datetime = NOW()
 	</insert>
 
-	<select id="getFavoriteList">
+	<select id="getBookMarkList">
 		SELECT  d.*
 		FROM DEALS_BOARD d
-		JOIN FAVORITES_DEALS fd  ON d.deal_id = fd.deal_id
+		JOIN BOOKMARKS_DEALS fd  ON d.deal_id = fd.deal_id
 		WHERE fd.email = #{email}
 		AND fd.disabled = 'N'
-		ORDER BY fd.favorite_datetime DESC
+		ORDER BY fd.bookmark_datetime DESC
 		limit #{skip}, #{size}
 	</select>
 
-	<select id="getFavoriteCount">
+	<select id="getBookMarkCount">
 		select count(*)
 		FROM DEALS_BOARD d
-		JOIN FAVORITES_DEALS fd  ON d.deal_id = fd.deal_id
+		JOIN BOOKMARKS_DEALS fd  ON d.deal_id = fd.deal_id
 		WHERE fd.email = #{email}
 		AND fd.disabled = 'N'
 	</select>
@@ -177,7 +203,7 @@
 	</select>
 
 	<select id="getReservationPeople">
-		SELECT email FROM FAVORITES_BOOKS
+		SELECT email FROM BOOKMARKS_BOOKS
 		where isbn = #{isbn}
 		AND DISABLED = 'N'
 	</select>
