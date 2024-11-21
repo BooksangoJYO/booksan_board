@@ -133,7 +133,7 @@
 		INSERT INTO BOOKMARKS_DEALS
 			(email, deal_id, disabled)
 		VALUES
-			(#{email}, #{dealId}, 'N')
+			(#{bookMarkEmail}, #{dealId}, 'N')
 		ON DUPLICATE KEY UPDATE
 			disabled = IF(disabled = 'N', 'Y', 'N'),
 			bookmark_datetime = NOW()
