@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import io.booksan.booksan_board.dto.BookCategoryDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.entity.BoardReservationEntity;
 import io.booksan.booksan_board.entity.BookAlertEntity;
@@ -12,7 +11,7 @@ import io.booksan.booksan_board.vo.BoardReadLogVO;
 import io.booksan.booksan_board.vo.BoardReservationVO;
 import io.booksan.booksan_board.vo.BoardVO;
 import io.booksan.booksan_board.vo.BookCategoryVO;
-import io.booksan.booksan_board.vo.FavoriteVO;
+import io.booksan.booksan_board.vo.BookMarkCheckerVO;
 
 @Mapper
 public interface BoardDAO {
@@ -21,7 +20,7 @@ public interface BoardDAO {
     int insertBoard(BoardVO boardVO);
 
     //게시물 단건조회
-    BoardVO readBoardById(int dealId);
+    BoardVO readBoardById(BookMarkCheckerVO bookMarkCheckerVO);
 
     //게시물 목록
     List<BoardVO> getBoardList(PageRequestDTO pageRequestDTO);
@@ -35,11 +34,11 @@ public interface BoardDAO {
     //게시물 개수
     int getTotalCount(PageRequestDTO pageRequestDTO);
 
-    List<BoardVO> getFavoriteList(PageRequestDTO pageRequestDTO);
+    List<BoardVO> getBookMarkList(PageRequestDTO pageRequestDTO);
 
-    int getFavoriteCount(PageRequestDTO pageRequestDTO);
+    int getBookMarkCount(PageRequestDTO pageRequestDTO);
 
-    int insertFavorite(FavoriteVO favoriteVO);
+    int insertBookMark(BookMarkCheckerVO bookMarkCheckerVO);
 
     //가판대 수정페이지 판매여부 변경
     int updateStatus(BoardVO boardVO);
@@ -57,6 +56,8 @@ public interface BoardDAO {
     public void insertBoardReadLog(BoardReadLogVO boardReadLog);
 
     List<BookCategoryVO> getTop3Categories();
+
     List<BoardVO> getDealsInCategory(int categoryId);
 
+    int updateDealReadCount(int dealId);
 }

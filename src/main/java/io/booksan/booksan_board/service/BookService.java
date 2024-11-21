@@ -23,8 +23,8 @@ import io.booksan.booksan_board.dto.PageResponseDTO;
 import io.booksan.booksan_board.dto.RequestDTO;
 import io.booksan.booksan_board.util.MapperUtil;
 import io.booksan.booksan_board.vo.BookCommentVO;
+import io.booksan.booksan_board.vo.BookMarkedBookVO;
 import io.booksan.booksan_board.vo.BookVO;
-import io.booksan.booksan_board.vo.FavoriteBookVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -142,7 +142,10 @@ public class BookService {
                     itemNode,
                     objectMapper.getTypeFactory().constructCollectionType(List.class, BookInfoDTO.class)
             );
-            bookDAO.updateBookReadCount(isbn);
+            int result = isISBNExists(isbn);
+            if (result == 1) {
+                bookDAO.updateBookReadCount(isbn);
+            }
             return bookList.get(0);
         } catch (Exception e) {
             throw new RuntimeException("네이버 API로부터 파싱 실패", e);
@@ -200,51 +203,56 @@ public class BookService {
         return bookDAO.deleteComment(commentId);
     }
 
-    public PageResponseDTO<BookDTO> getFavoriteBookList(PageRequestDTO pageRequestDTO) {
+    public PageResponseDTO<BookDTO> getBookMarkBookList(PageRequestDTO pageRequestDTO) {
         //DAO에서 게시물 목록을 가져오고, BoardVO를 BoardDTO로 변환
-        List<BookDTO> favoriteBookList = bookDAO.getFavoriteBookList(pageRequestDTO).stream().map(book -> mapperUtil.map(book, BookDTO.class)).toList();
+        List<BookDTO> bookMarkBookList = bookDAO.getBookMarkBookList(pageRequestDTO).stream().map(book -> mapperUtil.map(book, BookDTO.class)).toList();
         //PageResponseDTO를 생성하여 반환
         return PageResponseDTO.<BookDTO>withAll()
                 .pageRequestDTO(pageRequestDTO)
-                .dtoList(favoriteBookList)
-                .total(bookDAO.getFavoriteBookCount(pageRequestDTO))
+                .dtoList(bookMarkBookList)
+                .total(bookDAO.getBookMarkBookCount(pageRequestDTO))
                 .build();
     }
 
-    public int insertFavoriteBook(String isbn, String email) {
-        return bookDAO.insertFavoriteBook(new FavoriteBookVO(isbn, email));
+    public int insertBookMarkBook(String isbn, String email) {
+        int result = isISBNExists(isbn);
+        if (result == 0) {
+            BookInfoDTO bookInfo = searchBook(isbn);
+            BookVO bookVO = new BookVO(bookInfo.getIsbn(), bookInfo.getTitle(), bookInfo.getAuthor(), bookInfo.getPublisher(), bookInfo.getImage());
+            bookDAO.insertBookInfo(bookVO);
+        }
+        return bookDAO.insertBookMarkBook(new BookMarkedBookVO(isbn, email));
     }
 
-	public double getRecommendPrice(double originalPrice, int publishYear, int publishMonth) {
-		int currentYear = java.time.Year.now().getValue();
-		int currentMonth = java.time.LocalDate.now().getMonthValue();
-		
-		//경과 월 계산
-		int yearsSincePublish = currentYear - publishYear; //년도 차이
-		int monthsSincePublish = (yearsSincePublish *12) + (currentMonth - publishMonth);
-		
-		//감가 계산
-		double depreciationRatePerMonth = 0.008; // 매월 10% 감소
-		double minimumPriceRate = 0.5; // 최소 50% 보장
-		
-		//감가 가격 적용
-		double depreciatedPrice = originalPrice * Math.pow((1-depreciationRatePerMonth), monthsSincePublish);
-		
-		//최소 거래가 보장
-		double minimumPrice = originalPrice * minimumPriceRate;
-		
-		return Math.max(depreciatedPrice, minimumPrice); //최소 가격 보장		
-	}
+    public double getRecommendPrice(double originalPrice, int publishYear, int publishMonth) {
+        int currentYear = java.time.Year.now().getValue();
+        int currentMonth = java.time.LocalDate.now().getMonthValue();
+
+        //경과 월 계산
+        int yearsSincePublish = currentYear - publishYear; //년도 차이
+        int monthsSincePublish = (yearsSincePublish * 12) + (currentMonth - publishMonth);
+
+        //감가 계산
+        double depreciationRatePerMonth = 0.008; // 매년 10% 감소
+        double minimumPriceRate = 0.5; // 최소 50% 보장
+
+        //감가 가격 적용
+        double depreciatedPrice = originalPrice * Math.pow((1 - depreciationRatePerMonth), monthsSincePublish);
+
+        //최소 거래가 보장
+        double minimumPrice = originalPrice * minimumPriceRate;
+
+        return Math.max(depreciatedPrice, minimumPrice); //최소 가격 보장		
+    }
 
     public List<BookDTO> getRecommendedBooks() {
         List<BookDTO> recommended = bookDAO.getMostViewedBooks();
-        
-        if(recommended == null || recommended.isEmpty()) {
+
+        if (recommended == null || recommended.isEmpty()) {
             recommended = bookDAO.getRandomBooks();
         }
-        
+
         return recommended;
     }
-
 
 }

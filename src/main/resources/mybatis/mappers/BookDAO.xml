@@ -45,30 +45,30 @@
 		where comment_id = #{commentId}
 	</update>
 	
-	<insert id="insertFavoriteBook">
-		INSERT INTO FAVORITES_BOOKS
+	<insert id="insertBookMarkBook">
+		INSERT INTO BOOKMARKS_BOOKS
 			(email, isbn)
 		VALUES 
 			(#{email}, #{isbn})
 		ON DUPLICATE KEY UPDATE
 			disabled = IF(disabled = 'N', 'Y', 'N'),
-			favorite_datetime = NOW()
+			bookmark_datetime = NOW()
 	</insert>
 
-	<select id="getFavoriteBookList">
+	<select id="getBookMarkBookList">
 		SELECT  b.*
 		FROM BOOKS_INFO b
-		JOIN FAVORITES_BOOKS fb  ON b.isbn = fb.isbn
+		JOIN BOOKMARKS_BOOKS fb  ON b.isbn = fb.isbn
 		WHERE fb.email = #{email}
 		AND fb.disabled = 'N'
-		ORDER BY fb.favorite_datetime DESC
+		ORDER BY fb.bookmark_datetime DESC
 		limit #{skip}, #{size}
 	</select>
 
-	<select id="getFavoriteBookCount">
+	<select id="getBookMarkBookCount">
 		select count(*)
 		FROM BOOKS_INFO b
-		JOIN FAVORITES_BOOKS fb  ON b.isbn = fb.isbn
+		JOIN BOOKMARKS_BOOKS fb  ON b.isbn = fb.isbn
 		WHERE fb.email = #{email}
 		AND fb.disabled = 'N'
 	</select>

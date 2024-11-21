@@ -86,6 +86,7 @@ public class BoardController {
         Map<String, Object> loginData = null;
         if (token != null) {
             loginData = tokenChecker.tokenCheck(token);
+            log.info(loginData.toString());
         }
         //단건조회 결과 boardVO에 담음
         BoardDTO boardDTO = boardService.readBoardById(dealId, loginData);
@@ -117,11 +118,18 @@ public class BoardController {
 
     //게시판 목록
     @GetMapping("/list")
-    public ResponseEntity<?> getBoardList(PageRequestDTO pageRequestDTO) {
+    public ResponseEntity<?> getBoardList(PageRequestDTO pageRequestDTO, @RequestHeader Map<String, String> request) {
+        String token = request.get("accesstoken");
+        Map<String, Object> loginData = null;
+        if (token != null) {
+            loginData = tokenChecker.tokenCheck(token);
+            if (loginData != null && (Boolean) loginData.get("status")) {
+                pageRequestDTO.setBookMarkEmail((String) loginData.get("email"));
+            }
+        }
         log.info(pageRequestDTO.toString());
         //게시물 목록 가져와서 boadList에 담기
         PageResponseDTO<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);
-
         //응답데이터 저장할 Map
         Map<String, Object> response = new HashMap<>();
         log.info(boardList.toString());
@@ -149,8 +157,8 @@ public class BoardController {
 
         //로그인한 유저가 글작성자인지 확인하고 맞으면 수정 요청
         if (boardDTO.getEmail().equals(email)) {
-			int result = boardService.updateBoard(boardDTO);
-			if (result == 1) {
+            int result = boardService.updateBoard(boardDTO);
+            if (result == 1) {
                 response.put("status", "success");
                 response.put("message", "게시물 수정 성공");
                 return ResponseEntity.ok(response);
@@ -187,11 +195,11 @@ public class BoardController {
 
     }
 
-    @GetMapping("favorite/list")
-    public ResponseEntity<?> getFavoriteList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("bookMark/list")
+    public ResponseEntity<?> getBookMarkList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
         pageRequestDTO.setEmail(userDetails.getUsername());
         //게시물 목록 가져와서 boadList에 담기
-        PageResponseDTO<BoardDTO> boardList = boardService.getFavoriteList(pageRequestDTO);
+        PageResponseDTO<BoardDTO> boardList = boardService.getBookMarkList(pageRequestDTO);
 
         //응답데이터 저장할 Map
         Map<String, Object> response = new HashMap<>();
@@ -209,10 +217,10 @@ public class BoardController {
         }
     }
 
-    @PostMapping("favorite/insert/{dealId}")
-    public ResponseEntity<?> insertFavoriteList(@PathVariable("dealId") int dealId, @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping("bookMark/insert/{dealId}")
+    public ResponseEntity<?> insertBookMarkList(@PathVariable("dealId") int dealId, @AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();
-        int result = boardService.insertFavorite(dealId, email);
+        int result = boardService.insertBookMark(dealId, email);
         Map<String, Object> response = new HashMap<>();
         if (result == 1 || result == 2) {
             response.put("status", "success");
@@ -308,14 +316,14 @@ public class BoardController {
 
     @GetMapping("/recommend/books")
     public ResponseEntity<?> getRecommendBooks(@AuthenticationPrincipal UserDetails userDetails) {
-      // if(userDetails == null) {
-        log.info("**********recommendForAll:::"+boardService.recommendBooksForAllUsers().toString());
+        // if(userDetails == null) {
+        log.info("**********recommendForAll:::" + boardService.recommendBooksForAllUsers().toString());
         return ResponseEntity.ok(boardService.recommendBooksForAllUsers());
-      // }
+        // }
 
-      // if (userDetails != null) {
-      // 	String email = userDetails.getUsername();
-      // 	boardService.recommendBooksForUser(email);		//회원일 경우 회원 추천 도서 조회
-      // }
+        // if (userDetails != null) {
+        // 	String email = userDetails.getUsername();
+        // 	boardService.recommendBooksForUser(email);		//회원일 경우 회원 추천 도서 조회
+        // }
     }
 }
