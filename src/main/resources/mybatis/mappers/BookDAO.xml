@@ -86,7 +86,7 @@
 	    FROM BOOKS_INFO 
 	    WHERE book_read_count > 0
 	    ORDER BY book_read_count DESC
-	    LIMIT 4
+	    LIMIT 3
 	</select>
 	
 	<!-- 랜덤 4권 -->
@@ -104,7 +104,7 @@
 	        WHERE disabled = 'N'
 	    )
 	    ORDER BY RAND()
-	    LIMIT 4
+	    LIMIT 3
 	</select>
 
 	
