@@ -74,7 +74,7 @@
 	</select>
 	
 
-	<!-- 조회수 기준 상위 4권 -->
+	<!-- 조회수 기준 상위 3권 -->
 	<select id="getMostViewedBooks">
 	    SELECT 
 	        isbn,
@@ -86,10 +86,10 @@
 	    FROM BOOKS_INFO 
 	    WHERE book_read_count > 0
 	    ORDER BY book_read_count DESC
-	    LIMIT 4
+	    LIMIT 3
 	</select>
 	
-	<!-- 랜덤 4권 -->
+	<!-- 랜덤 3권 -->
 	<select id="getRandomBooks">
 	    SELECT 
 	        isbn,
@@ -104,7 +104,7 @@
 	        WHERE disabled = 'N'
 	    )
 	    ORDER BY RAND()
-	    LIMIT 4
+	    LIMIT 3
 	</select>
 
 	
