@@ -36,6 +36,7 @@ public class PageRequestDTO {
     private String dealId;
     private String isbn;
     private int booksCategoryId = 0; // 기본값: 0 (전체 게시물)
+    private String bookMarkEmail;
 
     @Builder.Default
     private Boolean availableOnly = false; // 기본값: false

@@ -84,7 +84,6 @@ public class BoardController {
     public ResponseEntity<?> readBoard(@PathVariable("dealId") int dealId, @RequestHeader Map<String, String> request) {
         String token = request.get("accesstoken");
         Map<String, Object> loginData = null;
-        log.info(token);
         if (token != null) {
             loginData = tokenChecker.tokenCheck(token);
             log.info(loginData.toString());
@@ -119,11 +118,18 @@ public class BoardController {
 
     //게시판 목록
     @GetMapping("/list")
-    public ResponseEntity<?> getBoardList(PageRequestDTO pageRequestDTO) {
+    public ResponseEntity<?> getBoardList(PageRequestDTO pageRequestDTO, @RequestHeader Map<String, String> request) {
+        String token = request.get("accesstoken");
+        Map<String, Object> loginData = null;
+        if (token != null) {
+            loginData = tokenChecker.tokenCheck(token);
+            if (loginData != null && (Boolean) loginData.get("status")) {
+                pageRequestDTO.setBookMarkEmail((String) loginData.get("email"));
+            }
+        }
         log.info(pageRequestDTO.toString());
         //게시물 목록 가져와서 boadList에 담기
         PageResponseDTO<BoardDTO> boardList = boardService.getBoardList(pageRequestDTO);
-
         //응답데이터 저장할 Map
         Map<String, Object> response = new HashMap<>();
         log.info(boardList.toString());
@@ -189,11 +195,11 @@ public class BoardController {
 
     }
 
-    @GetMapping("favorite/list")
-    public ResponseEntity<?> getFavoriteList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    @GetMapping("bookMark/list")
+    public ResponseEntity<?> getBookMarkList(PageRequestDTO pageRequestDTO, @AuthenticationPrincipal UserDetails userDetails) {
         pageRequestDTO.setEmail(userDetails.getUsername());
         //게시물 목록 가져와서 boadList에 담기
-        PageResponseDTO<BoardDTO> boardList = boardService.getFavoriteList(pageRequestDTO);
+        PageResponseDTO<BoardDTO> boardList = boardService.getBookMarkList(pageRequestDTO);
 
         //응답데이터 저장할 Map
         Map<String, Object> response = new HashMap<>();
@@ -211,10 +217,10 @@ public class BoardController {
         }
     }
 
-    @PostMapping("favorite/insert/{dealId}")
-    public ResponseEntity<?> insertFavoriteList(@PathVariable("dealId") int dealId, @AuthenticationPrincipal UserDetails userDetails) {
+    @PostMapping("bookMark/insert/{dealId}")
+    public ResponseEntity<?> insertBookMarkList(@PathVariable("dealId") int dealId, @AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();
-        int result = boardService.insertFavorite(dealId, email);
+        int result = boardService.insertBookMark(dealId, email);
         Map<String, Object> response = new HashMap<>();
         if (result == 1 || result == 2) {
             response.put("status", "success");

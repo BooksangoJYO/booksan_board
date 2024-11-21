@@ -21,9 +21,8 @@ public class BoardVO {
     private Date insertDatetime;
     private Date updatedDatetime;
     private int viewCnt;
-    private int favoriteCnt;
     private String status;
     private String disabled;
     private String publishDate;
-    private String isFavorited;
+    private String isBookMarked;
 }

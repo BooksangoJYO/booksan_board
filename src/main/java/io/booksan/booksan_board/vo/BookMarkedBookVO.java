@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class FavoriteBookVO {
+public class BookMarkedBookVO {
 
     private String isbn;
     private String email;

@@ -29,7 +29,7 @@ import io.booksan.booksan_board.entity.BookAlertEntity;
 import io.booksan.booksan_board.util.MapperUtil;
 import io.booksan.booksan_board.vo.BoardReadLogVO;
 import io.booksan.booksan_board.vo.BoardVO;
-import io.booksan.booksan_board.vo.FavoriteVO;
+import io.booksan.booksan_board.vo.BookMarkCheckerVO;
 import io.booksan.booksan_board.vo.ImageFileVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -114,11 +114,11 @@ public class BoardService {
         if (loginData != null && (Boolean) loginData.get("status")) {
             email = (String) loginData.get("email");
         }
-        FavoriteVO favoriteVO = new FavoriteVO(dealId);
+        BookMarkCheckerVO bookMarkCheckerVO = new BookMarkCheckerVO(dealId);
         if (email != null) {
-            favoriteVO.setEmail(email);
+            bookMarkCheckerVO.setBookMarkEmail(email);
         }
-        BoardVO boardVO = boardDAO.readBoardById(favoriteVO);
+        BoardVO boardVO = boardDAO.readBoardById(bookMarkCheckerVO);
         log.info("단건 조회 데이터" + boardVO.toString());
         if (boardVO != null) {
             BoardDTO boardDTO = mapperUtil.map(boardVO, BoardDTO.class);
@@ -213,17 +213,17 @@ public class BoardService {
         return boardDAO.deleteBoard(dealId);
     }
 
-    public PageResponseDTO<BoardDTO> getFavoriteList(PageRequestDTO pageRequestDTO) {
+    public PageResponseDTO<BoardDTO> getBookMarkList(PageRequestDTO pageRequestDTO) {
         // DAO에서 게시물 목록을 가져오고, BoardVO를 BoardDTO로 변환
-        List<BoardDTO> favoriteList = boardDAO.getFavoriteList(pageRequestDTO).stream()
+        List<BoardDTO> bookMarkList = boardDAO.getBookMarkList(pageRequestDTO).stream()
                 .map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
         // PageResponseDTO를 생성하여 반환
-        return PageResponseDTO.<BoardDTO>withAll().pageRequestDTO(pageRequestDTO).dtoList(favoriteList)
-                .total(boardDAO.getFavoriteCount(pageRequestDTO)).build();
+        return PageResponseDTO.<BoardDTO>withAll().pageRequestDTO(pageRequestDTO).dtoList(bookMarkList)
+                .total(boardDAO.getBookMarkCount(pageRequestDTO)).build();
     }
 
-    public int insertFavorite(int dealId, String email) {
-        return boardDAO.insertFavorite(new FavoriteVO(dealId, email));
+    public int insertBookMark(int dealId, String email) {
+        return boardDAO.insertBookMark(new BookMarkCheckerVO(dealId, email));
     }
 
     public List<BoardReservationDTO> getBoardReservationList(String email) {
