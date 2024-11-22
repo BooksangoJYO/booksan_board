@@ -67,7 +67,7 @@ public class SecurityConfig {
         @Override
         public void addResourceHandlers(ResourceHandlerRegistry registry) {
                 registry.addResourceHandler("/images/**")
-                        .addResourceLocations("file:/Users/user/");
+                        .addResourceLocations("file:/Users/public/download/");
         }
     }
 

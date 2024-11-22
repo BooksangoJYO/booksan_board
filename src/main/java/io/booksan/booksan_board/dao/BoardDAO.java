@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import io.booksan.booksan_board.dto.BookDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.entity.BoardReservationEntity;
 import io.booksan.booksan_board.entity.BookAlertEntity;
@@ -56,8 +57,12 @@ public interface BoardDAO {
     public void insertBoardReadLog(BoardReadLogVO boardReadLog);
 
     List<BookCategoryVO> getTop3Categories();
-
     List<BoardVO> getDealsInCategory(int categoryId);
+    
+    List<BookCategoryVO> getCategoriesCountByFavoriteDeals(String email);
+    List<BookCategoryVO> getCategoriesCountByFavoriteBooks(String email);
+    List<BookCategoryVO> getCategoriesCountByRead(String email);
+    List<BookDTO> getBooksByCategoryId(int booksCategoryId);
 
     int updateDealReadCount(int dealId);
 }

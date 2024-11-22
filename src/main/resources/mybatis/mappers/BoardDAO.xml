@@ -214,11 +214,10 @@
 	</insert>
 
 	<select id="getTop3Categories">
-		SELECT bc.books_category_id, bc.books_category_name, SUM(db.view_cnt) AS deals_view_count_sum
-		FROM DEALS_BOARD db
-			JOIN BOOKS_CATEGORIES bc ON db.books_category_id = bc.books_category_id
-		GROUP BY bc.books_category_id
-		ORDER BY SUM(db.view_cnt) DESC
+		SELECT books_category_id
+		FROM DEALS_BOARD
+		GROUP BY books_category_id
+		ORDER BY SUM(view_cnt) DESC
 		LIMIT 3
 	</select>
 
@@ -234,4 +233,45 @@
 			SET view_cnt= view_cnt+1
 			where deal_id = #{dealId}
 	</update>
+	<select id="getCategoriesCountByFavoriteDeals">
+		SELECT db.books_category_id, COUNT(*) AS count
+		FROM DEALS_BOARD db
+			JOIN (SELECT deal_id
+					FROM BOOKMARKS_DEALS
+					WHERE email = #{email}
+					AND disabled = 'N') fd
+			ON db.deal_id = fd.deal_id
+		GROUP BY books_category_id
+	</select>
+
+	<select id="getCategoriesCountByFavoriteBooks">
+		SELECT db.books_category_id, COUNT(*) AS count
+		FROM DEALS_BOARD db
+			JOIN (SELECT isbn
+					FROM BOOKMARKS_BOOKS
+					WHERE email = #{email}
+					AND disabled = 'N') fb
+				ON db.isbn = fb.isbn
+		GROUP BY books_category_id
+	</select>
+
+	<select id="getCategoriesCountByRead">
+		SELECT db.books_category_id, COUNT(*) AS count
+		FROM DEALS_BOARD db
+			JOIN (SELECT deal_id
+					FROM DEALS_READ_LOG
+					WHERE email = #{email}) drl
+				ON db.deal_id = drl.deal_id
+		GROUP BY books_category_id
+	</select>
+
+	<select id="getBooksByCategoryId">
+		SELECT * FROM BOOKS_INFO
+			JOIN (SELECT * FROM DEALS_BOARD
+					WHERE disabled = 'N'
+					AND status = 'Y'
+					AND isbn is NOT NULL) db
+				ON BOOKS_INFO.isbn = db.isbn
+		WHERE books_category_id = #{booksCategoryId}
+	</select>
 </mapper>
