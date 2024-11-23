@@ -43,7 +43,7 @@ services:
       - "traefik.http.middlewares.cors.headers.accesscontrolexposeheaders=Authorization,accesstoken,refreshtoken"
       - "traefik.http.middlewares.cors.headers.accesscontrolallowcredentials=true"
       # 나머지 설정들...
-      - "traefik.http.routers.user.rule=Host(`users.booksan.shop`)"
+      - "traefik.http.routers.user.rule=Host(`board.booksan.shop`)"
       - "traefik.http.routers.user.entrypoints=websecure"
       - "traefik.http.routers.user.tls=true"
       - "traefik.http.routers.user.tls.certresolver=myresolver"
