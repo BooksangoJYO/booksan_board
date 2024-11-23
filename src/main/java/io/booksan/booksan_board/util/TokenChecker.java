@@ -12,13 +12,16 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class TokenChecker {
-
+    
+    @Value("${booksan.users}")
+    private String booksanUsers;
+    
     private final RestTemplate restTemplate = new RestTemplate();
 
     public Map<String, Object> tokenCheck(String accessToken) {
         Map<String, Object> result = new HashMap<>();
         String apiUrl = String.format(
-                "http://localhost:8081/api/users/checkToken"
+                booksanUsers+"/api/users/checkToken"
         );
         if (accessToken != null) {
             //HttpHeaders 설정
