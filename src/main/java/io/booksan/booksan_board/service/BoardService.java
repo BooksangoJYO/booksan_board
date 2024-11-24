@@ -72,7 +72,7 @@ public class BoardService {
                     if (!file.isEmpty()) {
                         String imageUuid = UUID.randomUUID().toString();
 
-                        OutputStream os = new FileOutputStream("/Users/Public/download/" + imageUuid);
+                        OutputStream os = new FileOutputStream("/home/ubuntu/Downloads/" + imageUuid);
                         file.getInputStream().transferTo(os);
                         os.close();
 
@@ -180,7 +180,7 @@ public class BoardService {
                     if (!file.isEmpty()) {
                         String imageUuid = UUID.randomUUID().toString();
 
-                        OutputStream os = new FileOutputStream("/Users/Public/download/" + imageUuid);
+                        OutputStream os = new FileOutputStream("/home/ubuntu/Downloads/" + imageUuid);
                         file.getInputStream().transferTo(os);
                         os.close();
 
