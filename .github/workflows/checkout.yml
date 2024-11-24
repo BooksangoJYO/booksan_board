@@ -2,7 +2,7 @@ name: CI/CD Docker3
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
 
 env:
   VERSION: ${{ github.sha }}
