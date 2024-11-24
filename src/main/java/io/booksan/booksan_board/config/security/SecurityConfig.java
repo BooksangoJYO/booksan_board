@@ -40,16 +40,25 @@ public class SecurityConfig {
                 .configurationSource(corsConfigurationSource())
                 )
                 .authorizeHttpRequests(matchers -> matchers
-                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                .requestMatchers(
-                        "/",
-                        "/api/**",
-                        "/js/**",
-                        "/css/**",
-                        "/images/**",
-                        "/error" // 에러 페이지 허용
-                ).permitAll()
-                .anyRequest().authenticated()
+                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/api/**",
+                                "/js/**",
+                                "/css/**",
+                                "/images/**",
+                                "/error",  // 에러 페이지 허용
+                                // Swagger UI 관련 경로 추가
+                                "/swagger-ui/**",
+                                "/swagger-resources/**",
+                                "/v2/api-docs",
+                                "/v3/api-docs",
+                                "/webjars/**",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs/swagger-config",
+                                "/swagger.json/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
                 // 예외 처리 추가
                 .exceptionHandling(handling -> handling
@@ -65,7 +74,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList(booksanFront, booksanUsers));
+        configuration.setAllowedOriginPatterns(Arrays.asList(booksanUsers,booksanFront)); 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList(
                 "Origin",
