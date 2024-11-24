@@ -59,14 +59,11 @@ jobs:
           export IMAGE_NAME=${{ env.IMAGE_NAME }}
           export VERSION=${{ env.VERSION }}
           
-          # 기존 컨테이너와 네트워크 중지
-          sudo -E docker-compose down
-          
           # 새 이미지 pull
           sudo docker pull ${{ secrets.USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
           
           # 컨테이너 재시작
-          sudo -E docker-compose up -d --pull always --force-recreate --no-deps booksan_board
+          sudo -E docker-compose up -d
           
           # 미사용 이미지 정리
           sudo docker image prune -af
