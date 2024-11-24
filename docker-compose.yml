@@ -25,7 +25,6 @@ services:
  booksan_board:
    container_name: booksan_board_1  # 컨테이너 이름 직접 지정 
    restart: on-failure
-   build: .
    image: ${USERNAME}/${IMAGE_NAME}:${VERSION}
    deploy:
      replicas: 1
