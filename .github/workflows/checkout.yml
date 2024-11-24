@@ -6,7 +6,7 @@ on:
 
 env:
  VERSION: ${{ github.sha }}
- IMAGE_NAME: booksan_board_booksan_board
+ IMAGE_NAME: booksan_board
 
 jobs:
  build-docker-image:
@@ -53,7 +53,7 @@ jobs:
      
      - name: Docker deploy
        run: |
-         cd /home/ubuntu/booksan_board 
+         cd /home/ubuntu/${{ env.IMAGE_NAME }}
          sudo docker pull ${{ secrets.USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-         USERNAME=${{ secrets.USERNAME }} IMAGE_NAME=${{ env.IMAGE_NAME }} VERSION=${{ env.VERSION }} docker-compose up -d --force-recreate --no-deps booksan_board
+         sudo -E USERNAME=${{ secrets.USERNAME }} IMAGE_NAME=${{ env.IMAGE_NAME }} VERSION=${{ env.VERSION }} docker-compose up -d --pull always --force-recreate --no-deps booksan_board
          sudo docker image prune -af
