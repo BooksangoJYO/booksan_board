@@ -6,7 +6,7 @@ on:
 
 env:
   VERSION: ${{ github.sha }}
-  IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+  IMAGE_NAME: booksan_board_booksan_board
 
 jobs:
   build-docker-image:
