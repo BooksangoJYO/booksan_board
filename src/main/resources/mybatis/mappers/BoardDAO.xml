@@ -2,36 +2,276 @@
 <!DOCTYPE mapper PUBLIC  "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="io.booksan.booksan_board.dao.BoardDAO">
+	<sql id="search">
+		<where>			
+			<!-- 항상 적용되는 조건(삭제여부='N') -->
+			d.disabled ='N'	
+			
+			<!-- 키워드 조건 -->		
+			<if test="keyword != null and keyword != ''">
+				AND
+ 				<choose>
+					<!-- 통합검색 -->
+					<when test="searchType == null or searchType == ''">
+						concat_ws(' ', d.title, d.content, d.email, b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
+					</when>
+					<!-- 도서로 검색 -->					
+					<when test="searchType == 'book'">
+						concat_ws(' ', b.isbn, b.book_title, b.book_writer, b.book_publisher) like concat('%', #{keyword}, '%')
+					</when>
+				</choose>
+			</if>
+			<if test="booksCategoryId != null and booksCategoryId != 0">
+			    AND d.books_category_id = #{booksCategoryId}
+			</if>		
+		    <if test="availableOnly != null and availableOnly">
+		        AND d.status = 'N' <!-- 'N'은 판매 중 상태 -->
+		    </if>
+		    <if test="email != null and email != ''">
+		        AND d.email = #{email} <!-- 'N'은 판매 중 상태 -->
+			  </if>
+		    <if test="isbn != null and isbn != ''">
+		        AND d.isbn = #{isbn} <!-- 'N'은 판매 중 상태 -->
+		    </if>
+		</where>
+	</sql>
 
-	<insert id="insertBoard">
-		insert into DEALS_BOARD (title, content, books_category_id, ISBN, price,nickname)
-		values (#{title},#{content},#{booksCategoryId},#{isbn},#{price},#{nickname})
+
+	<!-- 게시물 등록 -->
+	<insert id="insertBoard" useGeneratedKeys="true" keyProperty="dealId">
+		insert into DEALS_BOARD (title, content, books_category_id, isbn, price,email,publish_Date)
+		values (#{title},#{content},#{booksCategoryId},#{isbn},#{price},#{email},#{publishDate})
 	</insert>
 	
+	<!-- 게시물 단건조회 -->
 	<select id="readBoardById">
-		select * from DEALS_BOARD where deal_id=#{dealId} and disabled='N'
+		SELECT 
+			d.*,
+			CASE 
+				WHEN f.bookmark_id IS NOT NULL 
+					AND f.disabled = 'N'
+					<if test="bookMarkEmail != null and bookMarkEmail != ''">
+						AND f.email = #{bookMarkEmail}
+					</if>
+					<if test="bookMarkEmail == null or bookMarkEmail == ''">
+						AND 1=0  /* 이메일이 없으면 무조건 N 반환 */
+					</if>
+				THEN 'Y'
+				ELSE 'N'
+			END as is_book_marked
+		FROM 
+			DEALS_BOARD d
+			LEFT OUTER JOIN BOOKMARKS_DEALS f
+				ON d.deal_id = f.deal_id
+		WHERE 
+			d.deal_id = #{dealId}
+			AND d.disabled = 'N'
 	</select>
 
+
+	<!-- 게시물 목록 -->
 	<select id="getBoardList">
-		select * from DEALS_BOARD where disabled='N' order by insert_datetime DESC 
+		SELECT 
+			d.*, b.*,
+			CASE 
+				WHEN f.bookmark_id IS NOT NULL 
+					AND f.disabled = 'N'
+					<if test="bookMarkEmail != null and bookMarkEmail != ''">
+						AND f.email = #{bookMarkEmail}
+					</if>
+					<if test="bookMarkEmail == null or bookMarkEmail == ''">
+						AND 1=0  /* 이메일이 없으면 무조건 N 반환 */
+					</if>
+				THEN 'Y'
+				ELSE 'N'
+			END as is_book_marked
+		FROM 
+			DEALS_BOARD d
+			LEFT OUTER JOIN BOOKMARKS_DEALS f 
+				ON d.deal_id = f.deal_id
+			JOIN BOOKS_INFO b ON d.isbn = b.isbn
+		<include refid="search" />
+		ORDER BY d.deal_id DESC
+		LIMIT #{skip}, #{size}
 	</select>
-	
+
+	<!-- 게시물 수정 -->
 	<update id="updateBoard" parameterType="io.booksan.booksan_board.vo.BoardVO">
 		update DEALS_BOARD
 		set title=#{title},
 			content=#{content},
 			books_category_id=#{booksCategoryId},
-			ISBN=#{isbn},
-			price=#{price},		
+			price=#{price},
 			updated_datetime=now(),
 			status=#{status}
-		where deal_id=#{dealId}			
+		where deal_id=#{dealId}
 	</update>
 	
+	<!-- 게시물 삭제(상태변경) -->
 	<update id="deleteBoard">
 		update DEALS_BOARD
-		set disabled="Y"
+		set disabled='Y'
+		where deal_id=#{dealId}
+	</update>
+	
+	<!-- 게시물 목록 개수(페이지네이션) -->
+	<select id="getTotalCount">
+		select count(*)
+		from DEALS_BOARD d join BOOKS_INFO b on d.isbn = b.isbn
+		
+		<include refid="search" />
+	</select>
+	
+	<!-- 가판대 수정 판매여부 상태 변경 -->
+	<update id="updateStatus">	
+		update DEALS_BOARD
+		set status=#{status}
 		where deal_id=#{dealId}
 	</update>
 
+	<insert id="insertBookMark">
+		INSERT INTO BOOKMARKS_DEALS
+			(email, deal_id, disabled)
+		VALUES
+			(#{bookMarkEmail}, #{dealId}, 'N')
+		ON DUPLICATE KEY UPDATE
+			disabled = IF(disabled = 'N', 'Y', 'N'),
+			bookmark_datetime = NOW()
+	</insert>
+
+	<select id="getBookMarkList">
+		SELECT  d.*
+		FROM DEALS_BOARD d
+		JOIN BOOKMARKS_DEALS fd  ON d.deal_id = fd.deal_id
+		WHERE fd.email = #{email}
+		AND fd.disabled = 'N'
+		ORDER BY fd.bookmark_datetime DESC
+		limit #{skip}, #{size}
+	</select>
+
+	<select id="getBookMarkCount">
+		select count(*)
+		FROM DEALS_BOARD d
+		JOIN BOOKMARKS_DEALS fd  ON d.deal_id = fd.deal_id
+		WHERE fd.email = #{email}
+		AND fd.disabled = 'N'
+	</select>
+
+
+	<update id="updateBookAlert">
+        UPDATE USERS
+        <choose>
+            <when test="action == 'increase'">
+                SET book_alert = book_alert + 1
+            </when>
+            <when test="action == 'decrease'">
+                SET book_alert = book_alert - #{bookAlert}
+            </when>
+        </choose>
+        WHERE email = #{email}
+    </update>
+
+	<insert id="insertBoardReservation">
+        INSERT INTO BOARD_RESERVATION	(email , deal_id)
+        VALUES (#{email},#{dealId})
+    </insert>
+
+    <update id="updateBoardReservation">
+        UPDATE BOARD_RESERVATION
+        SET read_time = NOW()
+        WHERE email = #{email}
+        AND read_time IS NULL
+    </update>
+
+	<select id="getBoardReservationList">
+		SELECT
+			d.deal_id,
+			d.title,
+			bi.book_title,
+			bi.book_image_url,
+			br.write_time
+		FROM 
+			DEALS_BOARD d
+			INNER JOIN BOARD_RESERVATION br ON br.deal_id = d.deal_id 
+			INNER JOIN BOOKS_INFO bi ON d.isbn = bi.isbn
+		WHERE 
+			br.email = #{email}
+			AND br.read_time IS NULL
+			AND d.DISABLED = 'N'
+		ORDER BY 
+			br.write_time DESC
+	</select>
+
+	<select id="getReservationPeople">
+		SELECT email FROM BOOKMARKS_BOOKS
+		where isbn = #{isbn}
+		AND DISABLED = 'N'
+	</select>
+  
+  <insert id="insertBoardReadLog">
+		INSERT INTO DEALS_READ_LOG	(email , deal_id,isbn)
+        VALUES (#{email},#{dealId},#{isbn})
+	</insert>
+
+	<select id="getTop3Categories">
+		SELECT books_category_id
+		FROM DEALS_BOARD
+		GROUP BY books_category_id
+		ORDER BY SUM(view_cnt) DESC
+		LIMIT 3
+	</select>
+
+	<select id="getDealsInCategory">
+		SELECT * FROM DEALS_BOARD
+		WHERE books_category_id = #{booksCategoryId}
+		AND disabled = 'N' AND status = 'Y'
+		AND isbn is NOT NULL
+	</select>
+
+	<update id="updateDealReadCount">
+		update DEALS_BOARD
+			SET view_cnt= view_cnt+1
+			where deal_id = #{dealId}
+	</update>
+	<select id="getCategoriesCountByFavoriteDeals">
+		SELECT db.books_category_id, COUNT(*) AS count
+		FROM DEALS_BOARD db
+			JOIN (SELECT deal_id
+					FROM BOOKMARKS_DEALS
+					WHERE email = #{email}
+					AND disabled = 'N') fd
+			ON db.deal_id = fd.deal_id
+		GROUP BY books_category_id
+	</select>
+
+	<select id="getCategoriesCountByFavoriteBooks">
+		SELECT db.books_category_id, COUNT(*) AS count
+		FROM DEALS_BOARD db
+			JOIN (SELECT isbn
+					FROM BOOKMARKS_BOOKS
+					WHERE email = #{email}
+					AND disabled = 'N') fb
+				ON db.isbn = fb.isbn
+		GROUP BY books_category_id
+	</select>
+
+	<select id="getCategoriesCountByRead">
+		SELECT db.books_category_id, COUNT(*) AS count
+		FROM DEALS_BOARD db
+			JOIN (SELECT deal_id
+					FROM DEALS_READ_LOG
+					WHERE email = #{email}) drl
+				ON db.deal_id = drl.deal_id
+		GROUP BY books_category_id
+	</select>
+
+	<select id="getBooksByCategoryId">
+		SELECT * FROM BOOKS_INFO
+			JOIN (SELECT * FROM DEALS_BOARD
+					WHERE disabled = 'N'
+					AND status = 'Y'
+					AND isbn is NOT NULL) db
+				ON BOOKS_INFO.isbn = db.isbn
+		WHERE books_category_id = #{booksCategoryId}
+	</select>
 </mapper>

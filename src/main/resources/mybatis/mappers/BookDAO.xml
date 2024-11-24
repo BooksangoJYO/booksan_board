@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC  "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="io.booksan.booksan_board.dao.BookDAO">
+	<!-- 카테고리 목록 가져오기(게시물 등록시 카테고리 필요) -->
+	<select id="getCategories">
+		select * from BOOKS_CATEGORIES order by books_category_id
+	</select>
+
+	<!-- 책정보 등록(게시물 등록시) -->
+	<insert id="insertBookInfo" parameterType="io.booksan.booksan_board.vo.BookVO">
+		insert into BOOKS_INFO(isbn, book_title, book_writer, book_publisher, book_image_url)
+		values(#{isbn}, #{bookTitle}, #{bookWriter}, #{bookPublisher}, #{bookImageUrl})
+	</insert>
+	
+	<!-- isbn 존재여부 확인(존재하는 isbn인 경우 책등록 x) -->
+	<select id="isISBNExists">
+		select count(*) from BOOKS_INFO where isbn=#{isbn}
+	</select>
+	
+	<!-- 책 평가 댓글 목록 가져오기 -->
+	<select id="getComment">
+		select * from BOOK_COMMENT where isbn=#{isbn} and disabled='N' order by insert_datetime		
+	</select>
+	
+	<!-- 책 평가 댓글 등록 -->
+	<insert id="insertComment">
+		insert into BOOK_COMMENT(isbn, email, content)
+		values(#{isbn}, #{email}, #{content})
+	</insert>
+	
+	<!-- 책 평가 댓글 수정 -->
+	<update id="updateComment">
+		update BOOK_COMMENT
+		set content=#{content},
+			updated_datetime = now()
+		where comment_id = #{commentId}
+	</update>
+	
+	<!-- 책 평가 댓글 삭제(disabled='Y') -->
+	<update id="deleteComment">
+		update BOOK_COMMENT
+		set disabled = 'Y'
+		where comment_id = #{commentId}
+	</update>
+	
+	<insert id="insertBookMarkBook">
+		INSERT INTO BOOKMARKS_BOOKS
+			(email, isbn)
+		VALUES 
+			(#{email}, #{isbn})
+		ON DUPLICATE KEY UPDATE
+			disabled = IF(disabled = 'N', 'Y', 'N'),
+			bookmark_datetime = NOW()
+	</insert>
+
+	<select id="getBookMarkBookList">
+		SELECT  b.*
+		FROM BOOKS_INFO b
+		JOIN BOOKMARKS_BOOKS fb  ON b.isbn = fb.isbn
+		WHERE fb.email = #{email}
+		AND fb.disabled = 'N'
+		ORDER BY fb.bookmark_datetime DESC
+		limit #{skip}, #{size}
+	</select>
+
+	<select id="getBookMarkBookCount">
+		select count(*)
+		FROM BOOKS_INFO b
+		JOIN BOOKMARKS_BOOKS fb  ON b.isbn = fb.isbn
+		WHERE fb.email = #{email}
+		AND fb.disabled = 'N'
+	</select>
+	
+
+	<!-- 조회수 기준 상위 3권 -->
+	<select id="getMostViewedBooks">
+	    SELECT 
+	        isbn,
+	        book_title as bookTitle,
+	        book_writer as bookWriter,
+	        book_publisher as bookPublisher,
+	        book_image_url as bookImageUrl,
+	        book_read_count as bookReadCount
+	    FROM BOOKS_INFO 
+	    WHERE book_read_count > 0
+	    ORDER BY book_read_count DESC
+	    LIMIT 3
+	</select>
+	
+	<!-- 랜덤 3권 -->
+	<select id="getRandomBooks">
+	    SELECT 
+	        isbn,
+	        book_title as bookTitle,
+	        book_writer as bookWriter,
+	        book_publisher as bookPublisher,
+	        book_image_url as bookImageUrl
+	    FROM BOOKS_INFO
+	    WHERE isbn IN (
+	        SELECT DISTINCT isbn
+	        FROM DEALS_BOARD
+	        WHERE disabled = 'N'
+	    )
+	    ORDER BY RAND()
+	    LIMIT 3
+	</select>
+
+	<select id="bookMarkedBookCheck">
+		select count(*) from BOOKMARKS_BOOKS where isbn=#{isbn} and email = #{email} and disabled='N'
+	</select>
+
+
+	<update id="updateBookReadCount">
+		update BOOKS_INFO
+			SET book_read_count = book_read_count+1
+			where isbn = #{isbn}
+	</update>
+
+</mapper>

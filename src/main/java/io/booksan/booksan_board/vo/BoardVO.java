@@ -10,17 +10,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BoardVO {
-	private int dealId;
-	private String title;
-	private String content;
-	private String nickname;
-	private int booksCategoryId;
-	private String isbn;
-	private int price;
-	private Date insertDatetime;
-	private Date updatedDatetime;	
-	private int viewCnt;
-	private int favoriteCnt;
-	private String status;
-	private String disabled;
+
+    private int dealId;
+    private String title;
+    private String content;
+    private String email;
+    private int booksCategoryId;
+    private String isbn;
+    private int price;
+    private Date insertDatetime;
+    private Date updatedDatetime;
+    private int viewCnt;
+    private String status;
+    private String disabled;
+    private String publishDate;
+    private String isBookMarked;
 }
