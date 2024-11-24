@@ -56,7 +56,6 @@ jobs:
           sudo docker stop ${{ env.IMAGE_NAME }}_1 || true
           sudo docker rm ${{ env.IMAGE_NAME }}_1 || true
           sudo docker run -d \
-            --network network \
             --name ${{ env.IMAGE_NAME }}_1 \
             --restart on-failure \
             -v /home/ubuntu/Downloads:/home/ubuntu/Downloads \
