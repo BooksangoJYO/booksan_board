@@ -146,9 +146,32 @@ public class BoardService {
 
     // 게시물 목록
     public PageResponseDTO<BoardDTO> getBoardList(PageRequestDTO pageRequestDTO) {
-        // DAO에서 게시물 목록을 가져오고, BoardVO를 BoardDTO로 변환
-        List<BoardDTO> boardList = boardDAO.getBoardList(pageRequestDTO).stream()
-                .map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
+        // // DAO에서 게시물 목록을 가져오고, BoardVO를 BoardDTO로 변환
+        // List<BoardDTO> boardList = boardDAO.getBoardList(pageRequestDTO).stream()
+        //         .map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
+        
+        // 먼저 board 리스트를 BoardDTO로 변환
+        List<BoardDTO> boardDTOList = boardDAO.getBoardList(pageRequestDTO).stream()
+            .map(board -> mapperUtil.map(board, BoardDTO.class))
+            .toList();
+
+        // 변환된 BoardDTO 리스트를 사용하여 이미지 맵 생성
+        Map<Integer, List<ImageFileVO>> imageFileMap = new HashMap<>();
+        boardDTOList.forEach(dto -> {
+            imageFileMap.put(dto.getDealId(), imageFileDAO.getImageFileList(dto.getDealId()));
+        });
+
+        // 최종적으로 이미지 리스트 설정
+        List<BoardDTO> boardList = boardDTOList.stream()
+            .map(boardDTO -> {
+                boardDTO.setImageFileDTOList(
+                    imageFileMap.get(boardDTO.getDealId()).stream()
+                        .map(imageFileVO -> mapperUtil.map(imageFileVO, ImageFileDTO.class))
+                        .collect(Collectors.toList())
+                );
+                return boardDTO;
+            })
+            .toList();
         // PageResponseDTO를 생성하여 반환
         return PageResponseDTO.<BoardDTO>withAll().pageRequestDTO(pageRequestDTO).dtoList(boardList)
                 .total(boardDAO.getTotalCount(pageRequestDTO)).build();
