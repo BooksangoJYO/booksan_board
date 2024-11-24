@@ -9,16 +9,20 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 public class TokenChecker {
-
+    
+    @Value("${booksan.users}")
+    private String booksanUsers;
+    
     private final RestTemplate restTemplate = new RestTemplate();
 
     public Map<String, Object> tokenCheck(String accessToken) {
         Map<String, Object> result = new HashMap<>();
         String apiUrl = String.format(
-                "http://localhost:8081/api/users/checkToken"
+                booksanUsers+"/api/users/checkToken"
         );
         if (accessToken != null) {
             //HttpHeaders 설정

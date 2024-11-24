@@ -27,6 +27,9 @@ public class SecurityConfig {
     @Value("${booksan.front}")
     private String booksanFront;
 
+    @Value("${booksan.users}")
+    private String booksanUsers;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -74,7 +77,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173")); 
+        configuration.setAllowedOriginPatterns(Arrays.asList(booksanUsers,booksanFront)); 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList(
                 "Origin",
