@@ -26,7 +26,6 @@ public class SecurityConfig {
     
     @Value("${booksan.front}")
     private String booksanFront;
-
     @Value("${booksan.users}")
     private String booksanUsers;
 
@@ -50,7 +49,16 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/css/**",
                                 "/images/**",
-                                "/error"  // 에러 페이지 허용
+                                "/error",  // 에러 페이지 허용
+                                // Swagger UI 관련 경로 추가
+                                "/swagger-ui/**",
+                                "/swagger-resources/**",
+                                "/v2/api-docs",
+                                "/v3/api-docs",
+                                "/webjars/**",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs/swagger-config",
+                                "/swagger.json/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -65,19 +73,11 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Configuration
-    public class MvcConfig implements WebMvcConfigurer {
-        @Override
-        public void addResourceHandlers(ResourceHandlerRegistry registry) {
-                registry.addResourceHandler("/images/**")
-                        .addResourceLocations("file:/Users/user/");
-        }
-    }
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList(booksanUsers,booksanFront)); 
+        configuration.setAllowedOriginPatterns(Arrays.asList(booksanFront, booksanUsers)); 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList(
                 "Origin",

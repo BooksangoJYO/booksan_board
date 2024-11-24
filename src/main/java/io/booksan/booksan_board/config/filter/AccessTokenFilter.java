@@ -40,7 +40,8 @@ public class AccessTokenFilter extends OncePerRequestFilter {
                 && !path.startsWith("/api/board/delete") && !path.equals("/api/books/comment/insert")
                 && !path.equals("/api/books/comment/update") && !path.startsWith("/api/books/comment/delete")
                 && !path.startsWith("/api/board/bookMark") && !path.startsWith("/api/board/mypage")
-                && !path.startsWith("/api/board/reservation") && !path.startsWith("/api/books/bookMark"))) {
+                && !path.startsWith("/api/board/reservation") && !path.startsWith("/api/books/bookMark"))
+                && !path.startsWith("/api/board/recommend/books")) {
 
             filterChain.doFilter(request, response);
             return;

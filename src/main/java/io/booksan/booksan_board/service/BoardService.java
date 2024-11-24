@@ -3,6 +3,7 @@ package io.booksan.booksan_board.service;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -20,6 +21,7 @@ import io.booksan.booksan_board.dao.ImageFileDAO;
 import io.booksan.booksan_board.dto.BoardDTO;
 import io.booksan.booksan_board.dto.BoardReservationDTO;
 import io.booksan.booksan_board.dto.BookCategoryDTO;
+import io.booksan.booksan_board.dto.BookDTO;
 import io.booksan.booksan_board.dto.ImageFileDTO;
 import io.booksan.booksan_board.dto.PageRequestDTO;
 import io.booksan.booksan_board.dto.PageResponseDTO;
@@ -70,7 +72,7 @@ public class BoardService {
                     if (!file.isEmpty()) {
                         String imageUuid = UUID.randomUUID().toString();
 
-                        OutputStream os = new FileOutputStream("/Users/Public/download/" + imageUuid);
+                        OutputStream os = new FileOutputStream("/home/ubuntu/Downloads/" + imageUuid);
                         file.getInputStream().transferTo(os);
                         os.close();
 
@@ -178,7 +180,7 @@ public class BoardService {
                     if (!file.isEmpty()) {
                         String imageUuid = UUID.randomUUID().toString();
 
-                        OutputStream os = new FileOutputStream("/Users/Public/download/" + imageUuid);
+                        OutputStream os = new FileOutputStream("/home/ubuntu/Downloads/" + imageUuid);
                         file.getInputStream().transferTo(os);
                         os.close();
 
@@ -245,32 +247,88 @@ public class BoardService {
         // 인기 top3 카테고리 찾기
         List<BookCategoryDTO> top3Categories = boardDAO.getTop3Categories().stream()
                 .map(category -> mapperUtil.map(category, BookCategoryDTO.class)).toList();
-        log.info("************top3Categories : " + top3Categories.toString());
+        
         // 카테고리 별 랜덤 도서 1개 (반복문) -> 각각 리스트애 매핑
         List<String> recommendedBooksIsbn = new ArrayList<>();
         Random random = new Random();
         for (BookCategoryDTO category : top3Categories) {
-            log.info("************categoryID : " + category.getBooksCategoryId());
+            
             List<BoardVO> dealsInCategory = boardDAO.getDealsInCategory(category.getBooksCategoryId());
-            log.info("*******dealsInCategory : " + dealsInCategory);
+            
             if (!dealsInCategory.isEmpty()) {
                 int randomIndex = random.nextInt(dealsInCategory.size());
                 BoardVO randomDeal = dealsInCategory.get(randomIndex); // 카테고리에 해당하는 deal 중 randomindex에 해당하는 도서 가져오기
                 String randomDealIsbn = randomDeal.getIsbn();
-                log.info("*******recommendedDealIsbn : " + randomDealIsbn);
+                
                 recommendedBooksIsbn.add(randomDealIsbn);
-                log.info("*******recommendedBooksIsbn : " + recommendedBooksIsbn.toString());
+                
             }
         }
         // 리턴
         return recommendedBooksIsbn;
     }
 
-    // public List<BoardDTO> recommendBooksForUsers(String email) {
-    // // 유저 선호 카테고리 1~2개 찾기
-    // // 카테고리 1개 -> 카테고리에서 랜덤 도서 3개
-    // // 카테고리 2개 -> 1순위 카테고리에서 랜덤 도서 2개, 2순위 카테고리에서 랜덤 도서 1개
-    // // 리스트에 매핑
-    // // 리턴
-    // }
+    public List<BookDTO> recommendBooksForUser(String email) {
+    	// 유저 선호 카테고리 1~2개 찾기
+        List<BookCategoryDTO> categoriesByFavoriteDeals = boardDAO.getCategoriesCountByFavoriteDeals(email).stream().map(category -> mapperUtil.map(category, BookCategoryDTO.class)).toList();
+        List<BookCategoryDTO> categoriesByFavoriteBooks = boardDAO.getCategoriesCountByFavoriteBooks(email).stream().map(category -> mapperUtil.map(category, BookCategoryDTO.class)).toList();
+        List<BookCategoryDTO> categoriesByRead = boardDAO.getCategoriesCountByRead(email).stream().map(category -> mapperUtil.map(category, BookCategoryDTO.class)).toList();
+        
+        Map<Integer, Integer> categoryScores = new HashMap<>(); // 카테고리 ID -> 점수
+        
+        log.info("**********************************categoriesByFavoriteDeals"+categoriesByFavoriteDeals.toString());
+        int weightFavoriteDeals = 2; // favoriteDeals 가중치
+        for (BookCategoryDTO category : categoriesByFavoriteDeals) {
+            int categoryId = category.getBooksCategoryId();
+            int count = category.getCount(); // count 필드 값 가져오기
+            int score = count * weightFavoriteDeals; // count에 가중치를 곱한 점수
+            categoryScores.put(categoryId, categoryScores.getOrDefault(categoryId, 0) + score);
+        }
+        log.info("**********************************categoriesByFavoriteBooks"+categoriesByFavoriteBooks.toString());
+        int weightFavoriteBooks = 4; // favoriteBooks 가중치
+        for (BookCategoryDTO category : categoriesByFavoriteBooks) {
+            int categoryId = category.getBooksCategoryId();
+            int count = category.getCount();
+            int score = count * weightFavoriteBooks;
+            categoryScores.put(categoryId, categoryScores.getOrDefault(categoryId, 0) + score);
+        }
+        log.info("**********************************categoriesByRead"+categoriesByRead.toString());
+        int weightRead = 1; // read 가중치
+        for (BookCategoryDTO category : categoriesByRead) {
+            int categoryId = category.getBooksCategoryId();
+            int count = category.getCount();
+            int score = count * weightRead;
+            categoryScores.put(categoryId, categoryScores.getOrDefault(categoryId, 0) + score);
+        }
+
+        // 점수가 높은 순으로 정렬
+        List<Map.Entry<Integer, Integer>> sortedCategoryScores = categoryScores.entrySet()
+            .stream()
+            .sorted((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue())) // 점수 내림차순 정렬
+            .toList();
+
+    	// 상위 1~2개 카테고리 가져오기
+        int topCategoriesCount = 1; // 상위 몇 개를 추천할지 설정
+        List<Integer> topCategoryIds = sortedCategoryScores.stream()
+                .limit(topCategoriesCount)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        // 상위 카테고리에서 랜덤 도서 추천
+        Map<Integer, BookDTO> recommendedBooks = new HashMap<>();
+        Random random = new Random();
+        for (Integer categoryId : topCategoryIds) {
+            List<BookDTO> booksInCategory = boardDAO.getBooksByCategoryId(categoryId)
+                    .stream()
+                    .map(book -> mapperUtil.map(book, BookDTO.class))
+                    .toList();
+
+            if (!booksInCategory.isEmpty()) {
+                BookDTO randomBook = booksInCategory.get(random.nextInt(booksInCategory.size()));
+                recommendedBooks.put(categoryId, randomBook);
+            }
+        }
+
+        return recommendedBooks.values().stream().toList();
+    }
 }
