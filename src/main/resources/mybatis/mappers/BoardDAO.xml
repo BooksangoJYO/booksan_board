@@ -46,45 +46,51 @@
 	<!-- 게시물 단건조회 -->
 	<select id="readBoardById">
 		SELECT
-			d.*,
-			CASE 
-				<if test="bookMarkEmail != null and bookMarkEmail != ''">
-				WHEN EXISTS (
-					SELECT 1 
-					FROM BOOKMARKS_DEALS f 
-					WHERE f.deal_id = d.deal_id 
-					AND f.disabled = 'N'
-					AND f.email = #{bookMarkEmail}
-				) THEN 'Y'
-				</if>
-				ELSE 'N'
-			END as is_book_marked
+		d.*,
+		<choose>
+			<when test="bookMarkEmail != null and bookMarkEmail != ''">
+				CASE 
+					WHEN EXISTS (
+						SELECT 1 
+						FROM BOOKMARKS_DEALS f 
+						WHERE f.deal_id = d.deal_id 
+							AND f.disabled = 'N'
+							AND f.email = #{bookMarkEmail}
+					) THEN 'Y'
+					ELSE 'N'
+				END
+			</when>
+			<otherwise>'N'</otherwise>
+		</choose> as is_book_marked
 		FROM
 			DEALS_BOARD d
 		WHERE
 			d.deal_id = #{dealId}
-			AND d.disabled = 'N'
+		AND d.disabled = 'N'
 	</select>
 
 
 	<!-- 게시물 목록 -->
 	<select id="getBoardList">
 		SELECT
-		d.*, b.*,
-		CASE 
-			<if test="bookMarkEmail != null and bookMarkEmail != ''">
-			WHEN EXISTS (
-				SELECT 1 
-				FROM BOOKMARKS_DEALS f 
-				WHERE f.deal_id = d.deal_id 
-					AND f.disabled = 'N'
-					AND f.email = #{bookMarkEmail}
-			) THEN 'Y'
-			</if>
-			ELSE 'N'
-		END as is_book_marked
+			d.*, b.*,
+			<choose>
+				<when test="bookMarkEmail != null and bookMarkEmail != ''">
+					CASE 
+						WHEN EXISTS (
+							SELECT 1 
+							FROM BOOKMARKS_DEALS f 
+							WHERE f.deal_id = d.deal_id 
+							AND f.disabled = 'N'
+							AND f.email = #{bookMarkEmail}
+						) THEN 'Y'
+						ELSE 'N'
+					END
+				</when>
+				<otherwise>'N'</otherwise>
+			</choose> as is_book_marked
 		FROM
-		DEALS_BOARD d
+			DEALS_BOARD d
 		JOIN BOOKS_INFO b ON d.isbn = b.isbn
 		<include refid="search" />
 		ORDER BY d.deal_id DESC
