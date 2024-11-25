@@ -172,6 +172,7 @@ public class BoardService {
                 return boardDTO;
             })
             .toList();
+        log.info("리스트 첨부파일"+boardList.toString());
         // PageResponseDTO를 생성하여 반환
         return PageResponseDTO.<BoardDTO>withAll().pageRequestDTO(pageRequestDTO).dtoList(boardList)
                 .total(boardDAO.getTotalCount(pageRequestDTO)).build();
