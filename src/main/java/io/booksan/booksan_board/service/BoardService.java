@@ -240,12 +240,44 @@ public class BoardService {
     }
 
     public PageResponseDTO<BoardDTO> getBookMarkList(PageRequestDTO pageRequestDTO) {
-        // DAO에서 게시물 목록을 가져오고, BoardVO를 BoardDTO로 변환
-        List<BoardDTO> bookMarkList = boardDAO.getBookMarkList(pageRequestDTO).stream()
-                .map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
+        // // DAO에서 게시물 목록을 가져오고, BoardVO를 BoardDTO로 변환
+        // List<BoardDTO> bookMarkList = boardDAO.getBookMarkList(pageRequestDTO).stream()
+        //         .map(board -> mapperUtil.map(board, BoardDTO.class)).toList();
+        // // PageResponseDTO를 생성하여 반환
+        // return PageResponseDTO.<BoardDTO>withAll().pageRequestDTO(pageRequestDTO).dtoList(bookMarkList)
+        //         .total(boardDAO.getBookMarkCount(pageRequestDTO)).build();
+        
+        // 먼저 북마크 리스트를 BoardDTO로 변환
+        List<BoardDTO> bookMarkDTOList = boardDAO.getBookMarkList(pageRequestDTO).stream()
+        .map(board -> mapperUtil.map(board, BoardDTO.class))
+        .toList();
+
+        // 변환된 BookmarkDTO 리스트를 사용하여 이미지 맵 생성
+        Map<Integer, List<ImageFileVO>> imageFileMap = new HashMap<>();
+        bookMarkDTOList.forEach(dto -> {
+        imageFileMap.put(dto.getDealId(), imageFileDAO.getImageFileList(dto.getDealId()));
+        });
+
+        // 최종적으로 이미지 리스트 설정
+        List<BoardDTO> bookMarkList = bookMarkDTOList.stream()
+        .map(boardDTO -> {
+            boardDTO.setImageFileDTOList(
+                imageFileMap.get(boardDTO.getDealId()).stream()
+                    .map(imageFileVO -> mapperUtil.map(imageFileVO, ImageFileDTO.class))
+                    .collect(Collectors.toList())
+            );
+            return boardDTO;
+        })
+        .toList();
+
+        log.info("북마크 리스트 첨부파일" + bookMarkList.toString());
+
         // PageResponseDTO를 생성하여 반환
-        return PageResponseDTO.<BoardDTO>withAll().pageRequestDTO(pageRequestDTO).dtoList(bookMarkList)
-                .total(boardDAO.getBookMarkCount(pageRequestDTO)).build();
+        return PageResponseDTO.<BoardDTO>withAll()
+        .pageRequestDTO(pageRequestDTO)
+        .dtoList(bookMarkList)
+        .total(boardDAO.getBookMarkCount(pageRequestDTO))
+        .build();
     }
 
     public int insertBookMark(int dealId, String email) {
