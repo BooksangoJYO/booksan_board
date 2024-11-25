@@ -285,11 +285,45 @@ public class BoardService {
     }
 
     public List<BoardReservationDTO> getBoardReservationList(String email) {
-        List<BoardReservationDTO> bookReservationList = boardDAO.getBoardReservationList(email).stream()
-                .map(boardReservationVO -> mapperUtil.map(boardReservationVO, BoardReservationDTO.class))
-                .collect(Collectors.toList());
+        // List<BoardReservationDTO> bookReservationList = boardDAO.getBoardReservationList(email).stream()
+        //         .map(boardReservationVO -> mapperUtil.map(boardReservationVO, BoardReservationDTO.class))
+        //         .collect(Collectors.toList());
+        // int result = boardDAO.updateBoardReservation(new BoardReservationEntity(email));
+        // boardDAO.updateBookAlert(new BookAlertEntity(email, "decrease", result));
+        // return bookReservationList;
+
+        // BoardReservationVO를 BoardReservationDTO로 변환
+        List<BoardReservationDTO> bookReservationDTOList = boardDAO.getBoardReservationList(email).stream()
+        .map(boardReservationVO -> mapperUtil.map(boardReservationVO, BoardReservationDTO.class))
+        .collect(Collectors.toList());
+
+        // 변환된 BoardReservationDTO 리스트를 사용하여 이미지 맵 생성
+        Map<Integer, List<ImageFileVO>> imageFileMap = new HashMap<>();
+        bookReservationDTOList.forEach(dto -> {
+        imageFileMap.put(dto.getDealId(), imageFileDAO.getImageFileList(dto.getDealId()));
+        });
+
+        // 최종적으로 이미지 리스트 설정
+        List<BoardReservationDTO> bookReservationList = bookReservationDTOList.stream()
+        .map(boardReservationDTO -> {
+            boardReservationDTO.setImageFileDTOList(
+                imageFileMap.get(boardReservationDTO.getDealId()).stream()
+                    .map(imageFileVO -> mapperUtil.map(imageFileVO, ImageFileDTO.class))
+                    .collect(Collectors.toList())
+            );
+            return boardReservationDTO;
+        })
+        .toList();
+
+        // 예약 상태 업데이트
         int result = boardDAO.updateBoardReservation(new BoardReservationEntity(email));
+
+        // 알림 상태 업데이트
         boardDAO.updateBookAlert(new BookAlertEntity(email, "decrease", result));
+
+        log.info("예약 리스트 첨부파일" + bookReservationList.toString());
+
+        // 최종 리스트 반환
         return bookReservationList;
     }
 
