@@ -45,25 +45,23 @@
 	
 	<!-- 게시물 단건조회 -->
 	<select id="readBoardById">
-		SELECT 
+		SELECT
 			d.*,
 			CASE 
-				WHEN f.bookmark_id IS NOT NULL 
+				<if test="bookMarkEmail != null and bookMarkEmail != ''">
+				WHEN EXISTS (
+					SELECT 1 
+					FROM BOOKMARKS_DEALS f 
+					WHERE f.deal_id = d.deal_id 
 					AND f.disabled = 'N'
-					<if test="bookMarkEmail != null and bookMarkEmail != ''">
-						AND f.email = #{bookMarkEmail}
-					</if>
-					<if test="bookMarkEmail == null or bookMarkEmail == ''">
-						AND 1=0  /* 이메일이 없으면 무조건 N 반환 */
-					</if>
-				THEN 'Y'
+					AND f.email = #{bookMarkEmail}
+				) THEN 'Y'
+				</if>
 				ELSE 'N'
 			END as is_book_marked
-		FROM 
+		FROM
 			DEALS_BOARD d
-			LEFT OUTER JOIN BOOKMARKS_DEALS f
-				ON d.deal_id = f.deal_id
-		WHERE 
+		WHERE
 			d.deal_id = #{dealId}
 			AND d.disabled = 'N'
 	</select>
@@ -71,25 +69,23 @@
 
 	<!-- 게시물 목록 -->
 	<select id="getBoardList">
-		SELECT 
-			d.*, b.*,
-			CASE 
-				WHEN f.bookmark_id IS NOT NULL 
+		SELECT
+		d.*, b.*,
+		CASE 
+			<if test="bookMarkEmail != null and bookMarkEmail != ''">
+			WHEN EXISTS (
+				SELECT 1 
+				FROM BOOKMARKS_DEALS f 
+				WHERE f.deal_id = d.deal_id 
 					AND f.disabled = 'N'
-					<if test="bookMarkEmail != null and bookMarkEmail != ''">
-						AND f.email = #{bookMarkEmail}
-					</if>
-					<if test="bookMarkEmail == null or bookMarkEmail == ''">
-						AND 1=0  /* 이메일이 없으면 무조건 N 반환 */
-					</if>
-				THEN 'Y'
-				ELSE 'N'
-			END as is_book_marked
-		FROM 
-			DEALS_BOARD d
-			LEFT OUTER JOIN BOOKMARKS_DEALS f 
-				ON d.deal_id = f.deal_id
-			JOIN BOOKS_INFO b ON d.isbn = b.isbn
+					AND f.email = #{bookMarkEmail}
+			) THEN 'Y'
+			</if>
+			ELSE 'N'
+		END as is_book_marked
+		FROM
+		DEALS_BOARD d
+		JOIN BOOKS_INFO b ON d.isbn = b.isbn
 		<include refid="search" />
 		ORDER BY d.deal_id DESC
 		LIMIT #{skip}, #{size}
