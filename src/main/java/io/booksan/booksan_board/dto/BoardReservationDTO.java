@@ -1,6 +1,7 @@
 package io.booksan.booksan_board.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,4 +19,5 @@ public class BoardReservationDTO {
     private int dealId;
     private String title;
     private Date writeTime;
+    private List<ImageFileDTO> imageFileDTOList;
 }
