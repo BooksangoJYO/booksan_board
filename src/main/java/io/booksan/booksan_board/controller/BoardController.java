@@ -86,7 +86,7 @@ public class BoardController {
         Map<String, Object> loginData = null;
         if (token != null) {
             loginData = tokenChecker.tokenCheck(token);
-            log.info(loginData.toString());
+            log.info(loginData.toString()+"");
         }
         //단건조회 결과 boardVO에 담음
         BoardDTO boardDTO = boardService.readBoardById(dealId, loginData);
