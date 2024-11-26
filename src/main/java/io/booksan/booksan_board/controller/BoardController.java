@@ -314,15 +314,14 @@ public class BoardController {
         }
     }
 
-    @GetMapping("/recommend/books")
-    public ResponseEntity<?> getRecommendBooks(@AuthenticationPrincipal UserDetails userDetails) {
-        if(userDetails == null) {
-            log.info("**********recommendForAll:::" + boardService.recommendBooksForAllUsers().toString());
-            return ResponseEntity.ok(boardService.recommendBooksForAllUsers());
-        }
+    @GetMapping("/recommend/booksForAll")
+    public ResponseEntity<?> getRecommendBooksForAll() {
+        return ResponseEntity.ok(boardService.recommendBooksForAllUsers());
+    }
 
+    @GetMapping("/recommend/booksForOne")
+    public ResponseEntity<?> getRecommendBooksForOne(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails != null) {
-        	log.info("**********recommendForUser:::" + boardService.recommendBooksForAllUsers().toString());
             String email = userDetails.getUsername();
             return ResponseEntity.ok(boardService.recommendBooksForUser(email));    //회원일 경우 회원 추천 도서 조회
         }
