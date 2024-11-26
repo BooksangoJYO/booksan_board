@@ -84,7 +84,6 @@ public class BoardService {
                         imageFileVO.setImgType(file.getContentType());
                         imageFileVO.setImgSize((int) file.getSize());
 
-                        log.info("*** imageFileVO :" + imageFileVO.toString());
 
                         imageFileDAO.insertImageFile(imageFileVO);
                     }
@@ -319,7 +318,6 @@ public class BoardService {
         // 알림 상태 업데이트
         boardDAO.updateBookAlert(new BookAlertEntity(email, "decrease", result));
 
-        log.info("예약 리스트 첨부파일" + bookReservationList.toString());
 
         // 최종 리스트 반환
         return bookReservationList;
