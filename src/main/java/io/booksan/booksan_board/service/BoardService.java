@@ -84,7 +84,6 @@ public class BoardService {
                         imageFileVO.setImgType(file.getContentType());
                         imageFileVO.setImgSize((int) file.getSize());
 
-                        log.info("*** imageFileVO :" + imageFileVO.toString());
 
                         imageFileDAO.insertImageFile(imageFileVO);
                     }
@@ -93,7 +92,6 @@ public class BoardService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        log.info("****책 등록 오류!!!!!!");
         // 해당 책에 대한 거래에 알림설정을 해논 사용자들에게 알림 설정
         List<String> reservationPeople = boardDAO.getReservationPeople(boardVO.getIsbn());
         if (reservationPeople != null && !reservationPeople.isEmpty()) {
@@ -102,7 +100,6 @@ public class BoardService {
                 boardReservationEntity.setEmail(userEmail);
                 boardReservationEntity.setDealId(boardVO.getDealId());
                 boardDAO.insertBoardReservation(boardReservationEntity);
-                log.info("***카운트 오류!!!!!!");
                 boardDAO.updateBookAlert(new BookAlertEntity(userEmail, "increase", 0));
             }
         }
@@ -321,7 +318,6 @@ public class BoardService {
         // 알림 상태 업데이트
         boardDAO.updateBookAlert(new BookAlertEntity(email, "decrease", result));
 
-        log.info("예약 리스트 첨부파일" + bookReservationList.toString());
 
         // 최종 리스트 반환
         return bookReservationList;
