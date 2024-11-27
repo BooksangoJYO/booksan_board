@@ -36,6 +36,8 @@ public interface BookDAO {
     //책 평가 댓글 삭제
     int deleteComment(int commentId);
 
+    BookVO getBookInfo(String isbn);
+
     List<BookVO> getBookMarkBookList(PageRequestDTO pageRequestDTO);
 
     int getBookMarkBookCount(PageRequestDTO pageRequestDTO);
