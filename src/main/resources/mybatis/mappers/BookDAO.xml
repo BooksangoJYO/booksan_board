@@ -55,6 +55,11 @@
 			bookmark_datetime = NOW()
 	</insert>
 
+	<!-- 책 상세 정보 가져오기 -->
+	<select id="getBookInfo" resultType="io.booksan.booksan_board.vo.BookVO">
+		select * from BOOKS_INFO where isbn=#{isbn}
+	</select>
+
 	<select id="getBookMarkBookList">
 		SELECT  b.*
 		FROM BOOKS_INFO b
