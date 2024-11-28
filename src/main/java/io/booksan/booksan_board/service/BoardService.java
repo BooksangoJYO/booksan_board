@@ -4,11 +4,9 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -405,31 +403,19 @@ public class BoardService {
                 .toList();
 
         // 상위 카테고리에서 랜덤 도서 추천
-        Map<String, BookDTO> recommendedBooks = new HashMap<>();
-            Random random = new Random();
+        Map<Integer, BookDTO> recommendedBooks = new HashMap<>();
+        Random random = new Random();
+        for (Integer categoryId : topCategoryIds) {
+            List<BookDTO> booksInCategory = boardDAO.getBooksByCategoryId(categoryId)
+                    .stream()
+                    .map(book -> mapperUtil.map(book, BookDTO.class))
+                    .toList();
 
-            for (Integer categoryId : topCategoryIds) {
-                List<BookDTO> booksInCategory = boardDAO.getBooksByCategoryId(categoryId)
-                        .stream()
-                        .map(book -> mapperUtil.map(book, BookDTO.class))
-                        .toList();
-
-                if (!booksInCategory.isEmpty()) {
-                    // 카테고리당 최대 3개의 도서 선택
-                    int repeatCount = Math.min(3, booksInCategory.size()); // 선택 가능한 도서 수 제한
-                    Set<Integer> selectedIndexes = new HashSet<>();
-                    for (int i = 0; i < repeatCount; i++) {
-                        int randomIndex;
-                        do {
-                            randomIndex = random.nextInt(booksInCategory.size());
-                        } while (selectedIndexes.contains(randomIndex)); // 중복 방지
-                        selectedIndexes.add(randomIndex);
-
-                        BookDTO randomBook = booksInCategory.get(randomIndex);
-                        recommendedBooks.put(randomBook.getIsbn(), randomBook); // ISBN(String)을 키로 사용
-                    }
-                }
-}
+            if (!booksInCategory.isEmpty()) {
+                BookDTO randomBook = booksInCategory.get(random.nextInt(booksInCategory.size()));
+                recommendedBooks.put(categoryId, randomBook);
+            }
+        }
 
         return recommendedBooks.values().stream().toList();
     }
