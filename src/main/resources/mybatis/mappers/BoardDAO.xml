@@ -254,6 +254,7 @@
 					WHERE email = #{email}
 					AND disabled = 'N') fb
 				ON db.isbn = fb.isbn
+		WHERE email = #{email}
 		GROUP BY books_category_id
 	</select>
 
